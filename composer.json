@@ -1,0 +1,6 @@
+{
+    "name": "eyond/sail-runtime",
+    "require-dev": {
+        "laravel/sail": "^1.30"
+    }
+}

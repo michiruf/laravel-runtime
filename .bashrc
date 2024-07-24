@@ -20,7 +20,7 @@ function sail {
 
     # Check if project exists
     if [ ! -d $site_directory ]; then
-        echo "There is no site configured file for this project in $site_directory"
+        echo "There is no site configured for this project in $site_directory"
         return 1
     fi
 
@@ -31,6 +31,9 @@ function sail {
     fi
 
     # Update the hosts file
+    # This requires administrator privileges
+    # When the entrypoint is PHPStorm, it needs to be started as administrator
+    # When the entrypoint is Powershell, it needs to be started as administrator
     $LARAVEL_RUNTIME_DIRECTORY/update-hosts-file.sh
 
     # Symbolic link the env file, since docker is again totally restrictive without printing errors..

@@ -14,7 +14,7 @@ function sail {
     elif [ -f vendor/bin/sail ]; then
         sail="vendor/bin/sail"
     else
-        echo "There is no sail installed in this directory ($project_path)"
+        echo "There is no sail installed in this project ($project_name)"
         return 1
     fi
 
@@ -35,8 +35,9 @@ function sail {
 
     # Symbolic link the env file, since docker is again totally restrictive without printing errors..
     rm -f $site_directory/.env
-    if [ -f .env ]; then
-        ln -s $project_path/.env $site_directory/.env
+    if [ -f $project_path/.env ]; then
+        relative_env=$(realpath --relative-to="$site_directory" $project_path/.env)
+        ln -s $relative_env $site_directory/.env
     fi
 
     # Finally call sail to handle the command

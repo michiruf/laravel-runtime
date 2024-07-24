@@ -10,7 +10,6 @@ function sail {
 
     $LARAVEL_RUNTIME_DIRECTORY/update-hosts-file.sh
 
-    #sail=$([ -f sail ] && echo sail || echo vendor/bin/sail)
     if [ -f sail ]; then
         sail="sail"
     elif [ -f vendor/bin/sail ]; then
@@ -28,10 +27,3 @@ function sail {
 
     SAIL_FILES="$LARAVEL_RUNTIME_DIRECTORY/sites/$project/docker-compose.yml" $sail $@
 }
-
-#alias sail='sh $([ -f sail ] && echo sail || echo vendor/bin/sail)'
-#alias composer='sail composer'
-#alias npm='sail npm'
-#alias php='sail php'
-#alias artisan='sail artisan'
-#alias test='sail test'

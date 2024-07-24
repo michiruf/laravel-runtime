@@ -6,7 +6,7 @@ function sail {
     fi
 
     project_path="$(pwd)"
-    project=$(basename "$project_path")
+    project_name=$(basename "$project_path")
 
     $LARAVEL_RUNTIME_DIRECTORY/update-hosts-file.sh
 
@@ -20,10 +20,10 @@ function sail {
     fi
 
     # Symbolic link the env file, since docker is again totally restrictive without printing errors..
-    rm -f $LARAVEL_RUNTIME_DIRECTORY/sites/$project/.env
+    rm -f $LARAVEL_RUNTIME_DIRECTORY/sites/$project_name/.env
     if [ -f .env ]; then
-        ln -s $project_path/.env $LARAVEL_RUNTIME_DIRECTORY/sites/$project/.env
+        ln -s $project_path/.env $LARAVEL_RUNTIME_DIRECTORY/sites/$project_name/.env
     fi
 
-    SAIL_FILES="$LARAVEL_RUNTIME_DIRECTORY/sites/$project/docker-compose.yml" $sail $@
+    SAIL_FILES="$LARAVEL_RUNTIME_DIRECTORY/sites/$project_name/docker-compose.yml" $sail $@
 }

@@ -7,8 +7,7 @@ function sail {
 
     project_path="$(pwd)"
     project_name=$(basename "$project_path")
-
-    $LARAVEL_RUNTIME_DIRECTORY/update-hosts-file.sh
+    site_directory="$LARAVEL_RUNTIME_DIRECTORY/sites/$project_name"
 
     if [ -f sail ]; then
         sail="sail"
@@ -19,11 +18,27 @@ function sail {
         return 1
     fi
 
-    # Symbolic link the env file, since docker is again totally restrictive without printing errors..
-    rm -f $LARAVEL_RUNTIME_DIRECTORY/sites/$project_name/.env
-    if [ -f .env ]; then
-        ln -s $project_path/.env $LARAVEL_RUNTIME_DIRECTORY/sites/$project_name/.env
+    # Check if project exists
+    if [ ! -d $site_directory ]; then
+        echo "There is no site configured file for this project in $site_directory"
+        return 1
     fi
 
-    SAIL_FILES="$LARAVEL_RUNTIME_DIRECTORY/sites/$project_name/docker-compose.yml" $sail $@
+    # Check if docker-compose.yml exists
+    if [ ! -f $site_directory/docker-compose.yml ]; then
+        echo "There is no docker-compose file for this project in $site_directory/docker-compose.yml"
+        return 1
+    fi
+
+    # Update the hosts file
+    $LARAVEL_RUNTIME_DIRECTORY/update-hosts-file.sh
+
+    # Symbolic link the env file, since docker is again totally restrictive without printing errors..
+    rm -f $site_directory/.env
+    if [ -f .env ]; then
+        ln -s $project_path/.env $site_directory/.env
+    fi
+
+    # Finally call sail to handle the command
+    SAIL_FILES="$site_directory/docker-compose.yml" $sail $@
 }

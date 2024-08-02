@@ -29,7 +29,7 @@ services:
     mysql:
         image: 'mysql/mysql-server:8.0'
         ports:
-            - '33007:3306'
+            - '33006:3306'
         expose:
             - '3306'
         environment:
@@ -79,6 +79,10 @@ networks:
 volumes:
     sail-mysql:
         driver: local
+        # This speeds up test execution by a huge amount, but data will be lost after shutdown
+        driver_opts:
+            type: tmpfs
+            device: tmpfs
     sail-redis:
         driver: local
         driver_opts:

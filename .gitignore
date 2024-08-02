@@ -2,4 +2,4 @@
 /vendor/
 /sites/*
 /sites/**/.env
-!/sites/example-8.3/
+!/sites/example/

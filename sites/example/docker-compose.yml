@@ -25,7 +25,7 @@ services:
         depends_on:
             - mysql
             - redis
-        restart: always
+        restart: unless-stopped
     mysql:
         image: 'mysql/mysql-server:8.0'
         ports:
@@ -52,7 +52,7 @@ services:
                 - '-p${DB_PASSWORD}'
             retries: 3
             timeout: 5s
-        restart: always
+        restart: unless-stopped
     redis:
         image: 'redis:alpine'
         expose:
@@ -68,7 +68,7 @@ services:
                 - ping
             retries: 3
             timeout: 5s
-        restart: always
+        restart: unless-stopped
 
 networks:
     sail:

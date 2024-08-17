@@ -41,6 +41,8 @@ function sail {
     if [ -f $project_path/.env ]; then
         relative_env=$(realpath --relative-to="$site_directory" $project_path/.env)
         ln -s $relative_env $site_directory/.env
+    else
+        echo -e "\033[0;33mWARNING\033[0m: There is no .env file in $project_path"
     fi
 
     # Finally call sail to handle the command

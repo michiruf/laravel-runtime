@@ -19,6 +19,7 @@ services:
             IGNITION_LOCAL_SITES_PATH: '${PWD}'
         volumes:
             - '../../../example:/var/www/html'
+            - '../../sail-php.sh:/usr/bin/sail-php'
         networks:
             - sail
             - proxy

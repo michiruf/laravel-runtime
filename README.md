@@ -53,7 +53,7 @@ To automatically update the windows hosts file, perform following steps.
 
 1. Navigate to `C:\Windows\System32\drivers\etc`.
 2. Copy the `hosts` file to `hosts_template`.
-3. Edit the the `hosts_template` file and append
+3. Edit the `hosts_template` file and append
    ```
    ############################################
    # Automatic docker hosts generated with
@@ -82,3 +82,4 @@ To automatically update the windows hosts file, perform following steps.
 9. Select the service *laravel-test* and hit OK
 10. (recommended) Set the lifecycle to *Connect to existing container*
 11. Done. Tests should now be runnable in PHPStorm.
+12. *Optional*: use sail-php as php executable, to have it being run as sail user instead of root

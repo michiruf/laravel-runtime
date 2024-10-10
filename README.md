@@ -83,3 +83,10 @@ To automatically update the windows hosts file, perform following steps.
 10. (recommended) Set the lifecycle to *Connect to existing container*
 11. Done. Tests should now be runnable in PHPStorm.
 12. *Optional*: use sail-php as php executable, to have it being run as sail user instead of root
+
+
+## Related Information
+
+* Configuring Windows Defender exclusion rules: https://github.com/microsoft/WSL/issues/8995#issuecomment-1380187901
+  > [!WARNING]  
+  > Might make your system vulnerable. Perform on your own risk!

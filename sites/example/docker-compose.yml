@@ -21,6 +21,8 @@ services:
             - '../../../example:/var/www/html'
             - '../../sail-php.sh:/usr/bin/sail-php'
             - '../../sail-php.ini:/etc/php/8.3/cli/conf.d/99-sail.ini'
+            # Enable if composer auth should be mounted:
+            #- '~/.config/composer/auth.json:/home/sail/.config/composer/auth.json'
         networks:
             - sail
             - proxy

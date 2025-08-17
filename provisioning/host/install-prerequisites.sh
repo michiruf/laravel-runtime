@@ -1,6 +1,5 @@
 #!/usr/bin/env sh
 
-
 # Install php
 sudo add-apt-repository ppa:ondrej/php # Press enter when prompted.
 sudo apt update

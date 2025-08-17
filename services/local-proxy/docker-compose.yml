@@ -1,5 +1,5 @@
 services:
-  proxy:
+  local-proxy:
     container_name: local-proxy
     image: jwilder/nginx-proxy
     ports:

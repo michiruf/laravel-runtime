@@ -7,5 +7,5 @@ services:
     environment:
       - OPENAI_API_KEY
     volumes:
-      - './llm-proxy.yaml:/app/config.yaml'
+      - './config.yaml:/app/config.yaml'
     command: ["--port", "4000", "--config=/app/config.yaml"]

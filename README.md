@@ -13,10 +13,10 @@ This is a laravel runtime for WSL using laravel-sail with a project-independent 
 ## Runtime Installation Steps
 
 1. Clone this repository anywhere to your WSL machine, except the `/mnt` directory.
-2. Execute `install-rc.sh` to add sourcing of this repositories `.bashrc` file to your own `~/.bashrc`.
+2. Execute `install.sh` to add sourcing of this repositories `.bashrc` file to your own `~/.bashrc`.
 3. Validate that the command worked inspecting your `~/.bashrc`.
 4. (optional) Install php and composer dependencies on the WSL machine. This can be done with 
-   `install-wsl-prerequisites.sh`, although this script might not be sufficient for all needs.
+   `install-prerequisites.sh`, although this script might not be sufficient for all needs.
 5. Start the docker-compose service in your runtime for automatic container discovery.
    This should in general needed to be done only once.
    ```shell

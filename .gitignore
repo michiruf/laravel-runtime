@@ -3,3 +3,4 @@
 /sites/*
 /sites/**/.env
 !/sites/example/
+/.env

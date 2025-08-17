@@ -48,3 +48,14 @@ function sail {
     # Finally call sail to handle the command
     SAIL_FILES="$site_directory/docker-compose.yml" $sail $@
 }
+
+function sail-runtime {
+    # Requires $LARAVEL_RUNTIME_DIRECTORY to be set
+    if [ -z ${LARAVEL_RUNTIME_DIRECTORY+x} ]; then
+        echo 'LARAVEL_RUNTIME_DIRECTORY environment variable must be set'
+        return 1
+    fi
+
+    (cd $LARAVEL_RUNTIME_DIRECTORY/services/local-proxy && docker-compose $@)
+    (cd $LARAVEL_RUNTIME_DIRECTORY/services/llm-proxy && docker-compose $@)
+}

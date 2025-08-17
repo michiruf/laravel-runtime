@@ -1,5 +1,11 @@
 #!/usr/bin/env sh
 
+# Requires $LARAVEL_RUNTIME_DIRECTORY to be set
+if [ -z ${LARAVEL_RUNTIME_DIRECTORY+x} ]; then
+    echo 'LARAVEL_RUNTIME_DIRECTORY environment variable must be set'
+    return 1
+fi
+
 hosts_file=/mnt/c/Windows/System32/drivers/etc/hosts
 hosts_template_file=/mnt/c/Windows/System32/drivers/etc/hosts_template
 
@@ -8,9 +14,8 @@ if [ ! -f "$hosts_template_file" ]; then
   exit 1
 fi
 
-script_dir=$(dirname "$0")
-updated_hosts="$(ls "$script_dir/sites" | sed "s/^/127.0.0.1 /" | sed "s/$/.local/" | tr '\n' '@' | sed 's/@/\\n/g')"
-updated_hosts_mailpit="$(ls "$script_dir/sites" | sed "s/^/127.0.0.1 mail./" | sed "s/$/.local/" | tr '\n' '@' | sed 's/@/\\n/g')"
+updated_hosts="$(ls "$LARAVEL_RUNTIME_DIRECTORY/sites" | sed "s/^/127.0.0.1 /" | sed "s/$/.local/" | tr '\n' '@' | sed 's/@/\\n/g')"
+updated_hosts_mailpit="$(ls "$LARAVEL_RUNTIME_DIRECTORY/sites" | sed "s/^/127.0.0.1 mail./" | sed "s/$/.local/" | tr '\n' '@' | sed 's/@/\\n/g')"
 sed "
 /# update-hosts-file start/,/# update-hosts-file end/{
   /# update-hosts-file start/!{

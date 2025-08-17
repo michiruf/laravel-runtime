@@ -34,7 +34,7 @@ function sail {
     # This requires administrator privileges
     # When the entrypoint is PHPStorm, it needs to be started as administrator
     # When the entrypoint is Powershell, it needs to be started as administrator
-    $LARAVEL_RUNTIME_DIRECTORY/update-hosts-file.sh
+    $LARAVEL_RUNTIME_DIRECTORY/provisioning/host/update-hosts-file.sh
 
     # Symbolic link the env file, since docker is again totally restrictive without printing errors..
     rm -f $site_directory/.env

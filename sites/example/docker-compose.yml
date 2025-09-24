@@ -23,6 +23,13 @@ services:
             - '../../provision/container/sail-php.ini:/etc/php/8.4/cli/conf.d/99-sail.ini'
             # Enable if composer auth should be mounted:
             #- '~/.config/composer/auth.json:/home/sail/.config/composer/auth.json'
+            # Claude (requires entrypoint)
+            #- '../../provision/container/entrypoint.sh:/entrypoint.sh'
+            #- '../../provision/container/install-claude-code.sh:/etc/sail-init/01-install-claude-code.sh'
+            #- '~/.claude.json:/home/sail/.claude.json'
+            #- '~/.claude.json.backup:/home/sail/.claude.json.backup'
+            #- '~/.claude/:/home/sail/.claude/'
+        # entrypoint: /entrypoint.sh
         networks:
             - sail
             - proxy

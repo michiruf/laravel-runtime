@@ -14,5 +14,3 @@ php -r "if (hash_file('sha384', 'composer-setup.php') === 'ed0feb545ba87161262f2
 php composer-setup.php
 php -r "unlink('composer-setup.php');"
 sudo mv composer.phar /usr/local/bin/composer
-
-# TODO Perform further the steps to prepare the wsl machine when they come up

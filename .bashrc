@@ -57,5 +57,8 @@ function sail-runtime {
     fi
 
     (cd $LARAVEL_RUNTIME_DIRECTORY/services/local-proxy && docker-compose $@)
-    (cd $LARAVEL_RUNTIME_DIRECTORY/services/llm-proxy && docker-compose $@)
+
+    if [ "$LARAVEL_RUNTIME_LLM_PROXY_ENABLED" = "true" ]; the
+        (cd $LARAVEL_RUNTIME_DIRECTORY/services/llm-proxy && docker-compose $@)
+    fi
 }

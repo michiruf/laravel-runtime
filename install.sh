@@ -5,6 +5,7 @@ SCRIPT_DIRECTORY=$(dirname "$(realpath "$0")")
 echo >> ~/.bashrc
 echo "# Laravel Runtime" >> ~/.bashrc
 echo "export LARAVEL_RUNTIME_DIRECTORY=$SCRIPT_DIRECTORY" >> ~/.bashrc
+echo "export LARAVEL_RUNTIME_LLM_PROXY_ENABLED=false" >> ~/.bashrc
 cat >>~/.bashrc <<'EOF'
 if [[ -d "$LARAVEL_RUNTIME_DIRECTORY" ]]; then
   source $LARAVEL_RUNTIME_DIRECTORY/.bashrc

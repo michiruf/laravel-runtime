@@ -2,6 +2,7 @@
 
 # Remove previous versions
 sudo apt remove php8.3-*
+sudo apt remove composer
 
 # Install php
 sudo add-apt-repository ppa:ondrej/php # Press enter when prompted.

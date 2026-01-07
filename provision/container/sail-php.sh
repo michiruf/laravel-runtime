@@ -11,4 +11,4 @@ if ! command -v gosu &> /dev/null; then
 	apt-get install -y gosu
 fi
 
-exec gosu sail "php" "$@"
+exec gosu 1000:1000 "php" "$@"

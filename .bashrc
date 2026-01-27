@@ -1,4 +1,9 @@
 function sail {
+    # Avoid autocomplete for sail, since autocomplete calls the sail function
+    # Next line did disable the command at all
+#     [[ -n "$COMP_LINE" || "${BASH_SOURCE[0]}" != "$0" ]] && return
+    [[ -n "$COMP_LINE" ]] && return
+
     # Requires $LARAVEL_RUNTIME_DIRECTORY to be set
     if [ -z ${LARAVEL_RUNTIME_DIRECTORY+x} ]; then
         echo 'LARAVEL_RUNTIME_DIRECTORY environment variable must be set'
@@ -50,6 +55,11 @@ function sail {
 }
 
 function sail-runtime {
+    # Avoid autocomplete for sail-runtime, since autocomplete calls the sail-runtime function
+    # Next line did disable the command at all
+    [[ -n "$COMP_LINE" ]] && return
+#     [[ -n "$COMP_LINE" || "${BASH_SOURCE[0]}" != "$0" ]] && return
+
     # Requires $LARAVEL_RUNTIME_DIRECTORY to be set
     if [ -z ${LARAVEL_RUNTIME_DIRECTORY+x} ]; then
         echo 'LARAVEL_RUNTIME_DIRECTORY environment variable must be set'

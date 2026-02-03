@@ -29,6 +29,9 @@ services:
             #- '~/.claude.json:/home/sail/.claude.json'
             #- '~/.claude.json.backup:/home/sail/.claude.json.backup'
             #- '~/.claude/:/home/sail/.claude/'
+            # Gemini (requires entrypoint)
+            #- '../../provision/container/install-gemini-cli.sh:/etc/sail-init/01-install-gemini-cli.sh'
+            #- '~/.gemini/:/home/sail/.gemini/'
         # entrypoint: /entrypoint.sh
         networks:
             - sail

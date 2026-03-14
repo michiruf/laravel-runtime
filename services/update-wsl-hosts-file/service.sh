@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
+[ "$SERVICE_UPDATE_WSL_HOSTS_FILE" != "true" ] && exit 0
 
 # Requires $LARAVEL_RUNTIME_DIRECTORY to be set
 if [ -z ${LARAVEL_RUNTIME_DIRECTORY+x} ]; then

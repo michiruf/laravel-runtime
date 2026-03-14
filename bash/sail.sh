@@ -3,13 +3,6 @@
 function sail {
     sail-runtime-check
 
-    # Check if runtime was installed
-    local sail="$LARAVEL_RUNTIME_DIRECTORY/vendor/bin/sail"
-    if [ ! -f "$sail" ]; then
-        echo "Sail is not installed. Run install.sh of the runtime first."
-        return 1
-    fi
-
     local project_path="$(pwd)"
 
     # Source global runtime defaults
@@ -66,5 +59,5 @@ function sail {
         done
     fi
 
-    SAIL_FILES="$compose_files" "$sail" "$@"
+    SAIL_FILES="$compose_files" "$LARAVEL_RUNTIME_DIRECTORY/vendor/bin/sail" "$@"
 }

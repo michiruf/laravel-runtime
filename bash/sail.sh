@@ -12,14 +12,11 @@ if [ -z "$site_directory" ]; then
 fi
 
 # Set project vars for the shared docker-compose
-set -a
 if [ -f "$LARAVEL_RUNTIME_DIRECTORY/.env" ]; then
+    set -a
     source "$LARAVEL_RUNTIME_DIRECTORY/.env"
+    set +a
 fi
-if [ -f "$project_path/.env" ]; then
-    source "$project_path/.env"
-fi
-set +a
 export PROJECT_NAME=$(basename "$project_path")
 export PROJECT_PATH="$project_path"
 

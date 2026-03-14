@@ -25,7 +25,7 @@ fi
 
 # Compile merged config into a single file
 config_file="$site_directory/docker-compose.yml"
-compose_cmd=(docker compose --project-directory "$site_directory")
+compose_cmd=(docker compose --project-directory "$site_directory" --env-file "$(pwd)/.env")
 IFS=':' read -ra files <<< "$compose_files"
 for f in "${files[@]}"; do
     compose_cmd+=(-f "$f")

@@ -57,13 +57,15 @@ function sail {
         compose_files="$LARAVEL_RUNTIME_DIRECTORY/runtime/docker-compose.yml"
     fi
 
-    # Pre-build base Sail image when building
+    # Pre-build base sail image when building
     if [[ "$1" == "build" || "$1" == "up" ]]; then
         local php_version="${PHP_VERSION:-8.4}"
         local sail_runtime="$LARAVEL_RUNTIME_DIRECTORY/vendor/laravel/sail/runtimes/$php_version"
         if [ -d "$sail_runtime" ]; then
-            echo "Building base Sail image (PHP $php_version)..."
-            docker build -t "sail-${php_version}/app" --build-arg WWWGROUP=1000 "$sail_runtime"
+            if [[ "$1" == "build" ]] || ! docker image inspect "sail-${php_version}/app" > /dev/null 2>&1; then
+                echo "Building base sail image (PHP $php_version)..."
+                docker build -t "sail-${php_version}/app" --build-arg WWWGROUP=1000 "$sail_runtime"
+            fi
         fi
     fi
 

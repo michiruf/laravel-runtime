@@ -17,7 +17,7 @@ function sail-site-config {
 
     # Merge mode: runtime + services + optional override
     local service_compose_files=$(sail-service-compose-files "$site_directory")
-    local compose_files="$LARAVEL_RUNTIME_DIRECTORY/runtime/sail/docker-compose.yml${service_compose_files}"
+    local compose_files="$stub_file${service_compose_files}"
 
     if [ -f "$site_directory/docker-compose.override.yml" ]; then
         compose_files="$compose_files:$site_directory/docker-compose.override.yml"

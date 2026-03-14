@@ -13,7 +13,7 @@ function sail-service-compose-files {
         while IFS= read -r line; do services+=("$line"); done < <(sail-service-discovery)
     fi
 
-    local result=""
+    local result="$LARAVEL_RUNTIME_DIRECTORY/runtime/sail/docker-compose.yml"
     for service in "${services[@]}"; do
         local compose_file="$LARAVEL_RUNTIME_DIRECTORY/runtime/$service/docker-compose.yml"
         [ -f "$compose_file" ] && result="$result:$compose_file"

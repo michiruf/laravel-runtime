@@ -22,7 +22,7 @@ echo 'services: {}' > "$stub_file"
 
 # Merge mode: runtime + services + optional override
 service_compose_files=$(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/sail-service-compose-files.sh" "$site_directory")
-compose_files="${stub_file}${service_compose_files}"
+compose_files="${stub_file}:${service_compose_files}"
 
 if [ -f "$site_directory/docker-compose.override.yml" ]; then
     compose_files="$compose_files:$site_directory/docker-compose.override.yml"

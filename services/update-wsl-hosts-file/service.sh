@@ -14,7 +14,7 @@ if [ -z "${WSL_HOSTS_TEMPLATE}" ]; then
     exit 1
 fi
 
-sites="$(find "$LARAVEL_RUNTIME_DIRECTORY/sites" -name docker-compose.yml -printf '%h\n' | xargs -I{} basename {})"
+sites="$(find "$LARAVEL_RUNTIME_DIRECTORY/sites" \( -name docker-compose.yml -o -name docker-compose.custom.yml \) -printf '%h\n' | sort -u | xargs -I{} basename {})"
 updated_hosts="$(echo "$sites" | sed "s/^/127.0.0.1 /" | sed "s/$/.local/" | tr '\n' '@' | sed 's/@/\\n/g')"
 updated_hosts_mailpit="$(echo "$sites" | sed "s/^/127.0.0.1 mail./" | sed "s/$/.local/" | tr '\n' '@' | sed 's/@/\\n/g')"
 echo "$WSL_HOSTS_TEMPLATE" | sed "

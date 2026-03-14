@@ -43,7 +43,6 @@ function sail-setup {
     fi
 
     mkdir -p "$site_directory"
-    echo 'services: {}' > "$site_directory/docker-compose.yml"
 
     # Discover available services
     local available_services=()

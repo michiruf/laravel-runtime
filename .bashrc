@@ -25,6 +25,11 @@ function sail {
         set +a
     fi
 
+    # Point docker-compose to the project's .env for variable substitution
+    if [ -f "$project_path/.env" ]; then
+        export COMPOSE_ENV_FILE="$project_path/.env"
+    fi
+
     # Set project vars for the shared docker-compose
     export PROJECT_NAME=$(basename "$project_path")
     export PROJECT_PATH="$project_path"

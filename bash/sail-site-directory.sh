@@ -1,3 +1,5 @@
+# shellcheck disable=SC2155
+
 # Resolve the site directory for the current project by walking upward from
 # the given path, building progressively longer relative paths and checking
 # for a match under $LARAVEL_RUNTIME_DIRECTORY/sites/.
@@ -11,21 +13,12 @@ function sail-site-directory {
 
     while [ "$search_path" != "/" ]; do
         local segment=$(basename "$search_path")
-
-        if [ -z "$relative_path" ]; then
-            relative_path="$segment"
-        else
-            relative_path="$segment/$relative_path"
-        fi
+        relative_path="$segment${relative_path:+/$relative_path}"
 
         local candidate="$LARAVEL_RUNTIME_DIRECTORY/sites/$relative_path"
-        if [ -d "$candidate" ]; then
-            echo "$candidate"
-            return 0
-        fi
+        [ -d "$candidate" ] && { echo "$candidate"; return 0; }
 
         search_path=$(dirname "$search_path")
     done
-
     return 1
 }

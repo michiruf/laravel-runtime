@@ -1,34 +1,31 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2155
 
-local_project_path="$(pwd)"
-
-# Source global runtime defaults
-if [ -f "$LARAVEL_RUNTIME_DIRECTORY/.env" ]; then
-    set -a
-    source "$LARAVEL_RUNTIME_DIRECTORY/.env"
-    set +a
-fi
-
-# Set project vars for the shared docker-compose
-export PROJECT_NAME=$(basename "$local_project_path")
-export PROJECT_PATH="$local_project_path"
+project_path="$(pwd)"
 
 # Require a site directory
-site_directory=$(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/sail-site-directory.sh" "$local_project_path")
+site_directory=$(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/sail-site-directory.sh" "$project_path")
 if [ -z "$site_directory" ]; then
-    echo "No site directory found for '$(basename "$local_project_path")'."
+    echo "No site directory found for '$(basename "$project_path")'."
     echo "Run 'sail-setup' from your project directory first."
     exit 1
 fi
 
-# Symbolic link the env file, since docker is totally restrictive without printing errors
-rm -f "$site_directory/.env"
-[ -f "$local_project_path/.env" ] && ln -s "$local_project_path/.env" "$site_directory/.env"
+# Set project vars for the shared docker-compose
+set -a
+if [ -f "$LARAVEL_RUNTIME_DIRECTORY/.env" ]; then
+    source "$LARAVEL_RUNTIME_DIRECTORY/.env"
+fi
+if [ -f "$project_path/.env" ]; then
+    source "$project_path/.env"
+fi
+set +a
+export PROJECT_NAME=$(basename "$project_path")
+export PROJECT_PATH="$project_path"
 
 # Resolve and compile compose configuration
-compose_files=$(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/sail-site-config.sh")
-if [ -z "$compose_files" ]; then
+compose_file=$(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/sail-site-compose.sh")
+if [ -z "$compose_file" ]; then
     echo "Failed to resolve compose configuration."
     exit 1
 fi
@@ -56,4 +53,4 @@ if [[ "$1" == "up" || "$1" == "down" ]]; then
     args+=("--remove-orphans")
 fi
 
-SAIL_FILES="$compose_files" "$LARAVEL_RUNTIME_DIRECTORY/vendor/bin/sail" "${args[@]}"
+SAIL_FILES="$compose_file" "$LARAVEL_RUNTIME_DIRECTORY/vendor/bin/sail" "${args[@]}"

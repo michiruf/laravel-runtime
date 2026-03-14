@@ -16,13 +16,8 @@ if [ -f "$site_directory/docker-compose.custom.yml" ]; then
     exit 0
 fi
 
-# Temporary stub so docker compose resolves .env from the site directory
-stub_file="$site_directory/docker-compose.stub.yml"
-echo 'services: {}' > "$stub_file"
-
 # Merge mode: runtime + services + optional override
-service_compose_files=$(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/sail-service-compose-files.sh" "$site_directory")
-compose_files="${stub_file}:${service_compose_files}"
+compose_files=$(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/sail-service-compose-files.sh" "$site_directory")
 
 if [ -f "$site_directory/docker-compose.override.yml" ]; then
     compose_files="$compose_files:$site_directory/docker-compose.override.yml"
@@ -37,5 +32,4 @@ for f in "${files[@]}"; do
 done
 
 "${compose_cmd[@]}" config > "$config_file"
-rm -f "$stub_file"
 echo "$config_file"

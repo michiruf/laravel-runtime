@@ -89,9 +89,6 @@ for idx in "${selected_indices[@]}"; do
     fi
 done
 
-rm -f "$site_directory/.env"
-[ -f "$local_project_path/.env" ] && ln -s "$local_project_path/.env" "$site_directory/.env"
-
 echo ""
 echo "Created ${site_directory#$LARAVEL_RUNTIME_DIRECTORY/}/"
 echo "Services: $(tr '\n' ' ' < "$site_directory/.sail-services")"

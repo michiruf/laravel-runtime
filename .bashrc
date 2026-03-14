@@ -1,13 +1,5 @@
 function sail {
-    # Avoid autocomplete for sail, since autocomplete calls the sail function
-    # Next line did disable the command at all
-    [[ -n "$COMP_LINE" ]] && return
-
-    # Requires $LARAVEL_RUNTIME_DIRECTORY to be set
-    if [ -z ${LARAVEL_RUNTIME_DIRECTORY+x} ]; then
-        echo 'LARAVEL_RUNTIME_DIRECTORY environment variable must be set'
-        return 1
-    fi
+    sail-runtime-check
 
     # Check if runtime was installed
     sail="$LARAVEL_RUNTIME_DIRECTORY/vendor/bin/sail"
@@ -25,31 +17,35 @@ function sail {
         set +a
     fi
 
-    # Point docker-compose to the project's .env for variable substitution
-    if [ -f "$project_path/.env" ]; then
-        export COMPOSE_ENV_FILE="$project_path/.env"
-    fi
-
     # Set project vars for the shared docker-compose
     export PROJECT_NAME=$(basename "$project_path")
     export PROJECT_PATH="$project_path"
 
-    # Determine compose file(s)
+    # Require a site directory
     site_directory=$(sail-site-directory "$project_path")
-    if [ -n "$site_directory" ] && [ -f "$site_directory/docker-compose.yml" ]; then
-        # Full custom compose
+    if [ -z "$site_directory" ]; then
+        echo "No site directory found for '$(basename "$project_path")'."
+        echo "Run 'sail-setup' from your project directory first."
+        return 1
+    fi
+
+    # Symbolic link the env file, since docker is again totally restrictive without printing errors..
+    rm -f "$site_directory/.env"
+    if [ -f "$project_path/.env" ]; then
+        ln -s "$project_path/.env" "$site_directory/.env"
+    fi
+
+    # Determine compose file(s) — site directory always comes first for .env resolution
+    if [ -f "$site_directory/docker-compose.override.yml" ]; then
+        # Site compose + shared + override
+        compose_files="$site_directory/docker-compose.yml:$LARAVEL_RUNTIME_DIRECTORY/runtime/docker-compose.yml:$site_directory/docker-compose.override.yml"
+    elif grep -q '[^[:space:]]' "$site_directory/docker-compose.yml" 2>/dev/null && \
+         ! grep -qx 'services: {}' "$site_directory/docker-compose.yml" 2>/dev/null; then
+        # Full custom compose (more than just the minimal stub)
         compose_files="$site_directory/docker-compose.yml"
-        # Symlink .env for docker-compose
-        rm -f "$site_directory/.env"
-        if [ -f "$project_path/.env" ]; then
-            ln -s "$(realpath --relative-to="$site_directory" "$project_path/.env")" "$site_directory/.env"
-        fi
-    elif [ -n "$site_directory" ] && [ -f "$site_directory/docker-compose.override.yml" ]; then
-        # Shared + override
-        compose_files="$LARAVEL_RUNTIME_DIRECTORY/runtime/docker-compose.yml:$site_directory/docker-compose.override.yml"
     else
-        # Shared only
-        compose_files="$LARAVEL_RUNTIME_DIRECTORY/runtime/docker-compose.yml"
+        # Minimal site compose + shared
+        compose_files="$site_directory/docker-compose.yml:$LARAVEL_RUNTIME_DIRECTORY/runtime/docker-compose.yml"
     fi
 
     # Pre-build base sail image when building
@@ -78,15 +74,7 @@ function sail {
 # e.g. for /home/app/my/sub/project, checks:
 #   sites/project -> sites/sub/project -> sites/my/sub/project
 function sail-site-directory {
-    # Avoid autocomplete for sail, since autocomplete calls the sail function
-    # Next line did disable the command at all
-    [[ -n "$COMP_LINE" ]] && return
-
-    # Requires $LARAVEL_RUNTIME_DIRECTORY to be set
-    if [ -z ${LARAVEL_RUNTIME_DIRECTORY+x} ]; then
-        echo 'LARAVEL_RUNTIME_DIRECTORY environment variable must be set'
-        return 1
-    fi
+    sail-runtime-check
 
     local search_path="${1:-$(pwd)}"
     local relative_path=""
@@ -110,4 +98,73 @@ function sail-site-directory {
     done
 
     return 1
+}
+
+function sail-setup {
+    sail-runtime-check
+
+    local project_path="$(pwd)"
+
+    # Build path options by walking up from current directory
+    local options=()
+    local search_path="$project_path"
+    local relative_path=""
+
+    while [ "$search_path" != "/" ]; do
+        local segment=$(basename "$search_path")
+
+        if [ -z "$relative_path" ]; then
+            relative_path="$segment"
+        else
+            relative_path="$segment/$relative_path"
+        fi
+
+        options+=("$relative_path")
+        search_path=$(dirname "$search_path")
+    done
+
+    # Present options to user
+    echo "Select site path:"
+    for i in "${!options[@]}"; do
+        echo "  $((i + 1))) ${options[$i]}"
+    done
+
+    local choice
+    read -rp "Choice [1]: " choice
+    choice="${choice:-1}"
+
+    if ! [[ "$choice" =~ ^[0-9]+$ ]] || [ "$choice" -lt 1 ] || [ "$choice" -gt "${#options[@]}" ]; then
+        echo "Invalid choice."
+        return 1
+    fi
+
+    local site_directory="$LARAVEL_RUNTIME_DIRECTORY/sites/${options[$((choice - 1))]}"
+
+    mkdir -p "$site_directory"
+
+    # Write minimal docker-compose.yml for .env resolution
+    cat > "$site_directory/docker-compose.yml" <<'COMPOSE'
+services: {}
+COMPOSE
+
+    # Symlink project .env into site directory
+    rm -f "$site_directory/.env"
+    if [ -f "$project_path/.env" ]; then
+        ln -s "$project_path/.env" "$site_directory/.env"
+    fi
+
+    local relative="${site_directory#$LARAVEL_RUNTIME_DIRECTORY/}"
+    echo "Created $relative/"
+}
+
+function sail-runtime-check {
+    # Avoid autocomplete for sail, since autocomplete calls the sail function
+    # Next line did disable the command at all
+    [[ -n "$COMP_LINE" ]] && exit 1
+
+    # Requires $LARAVEL_RUNTIME_DIRECTORY to be set
+    if [ -z ${LARAVEL_RUNTIME_DIRECTORY+x} ]; then
+        echo 'LARAVEL_RUNTIME_DIRECTORY environment variable must be set'
+        exit 1
+    fi
 }

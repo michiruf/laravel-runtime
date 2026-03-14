@@ -31,9 +31,10 @@ function sail {
     export PROJECT_NAME=$(basename "$project_path")
     export PROJECT_PATH="$project_path"
 
-    # Update the hosts file
-    # This requires administrator privileges
-    $LARAVEL_RUNTIME_DIRECTORY/wsl/update-hosts-file.sh
+    # Update the hosts file (requires admin privileges for the WSL terminal)
+    if [ "$WSL_UPDATE_HOSTS_FILE" = "true" ]; then
+        $LARAVEL_RUNTIME_DIRECTORY/wsl/update-hosts-file.sh
+    fi
 
     # Determine compose file(s)
     site_directory=$(sail-site-directory "$project_path")
@@ -75,6 +76,8 @@ function sail {
 }
 
 function sail-services {
+    # Avoid autocomplete for sail, since autocomplete calls the sail function
+    # Next line did disable the command at all
     [[ -n "$COMP_LINE" ]] && return
 
     if [ -z ${LARAVEL_RUNTIME_DIRECTORY+x} ]; then

@@ -66,7 +66,7 @@ function sail {
 
     # Invoke services alongside sail
     for service in "$LARAVEL_RUNTIME_DIRECTORY/services"/*/service.sh; do
-        [ -f "$service" ] && bash "$service" "$1"
+        [ -f "$service" ] && bash "$service" "$@"
     done
 
     SAIL_FILES="$compose_files" $sail $@

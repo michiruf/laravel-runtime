@@ -83,7 +83,7 @@ function sail-setup {
     service_choice="${service_choice:-$default_choice}"
 
     # Parse selection and write .sail-services
-    > "$site_directory/.sail-services"
+    : > "$site_directory/.sail-services"
     IFS=',' read -ra selected_indices <<< "$service_choice"
     for idx in "${selected_indices[@]}"; do
         idx="${idx// /}"

@@ -59,10 +59,12 @@ function sail {
         fi
     fi
 
-    # Invoke services alongside sail
-    for service in "$LARAVEL_RUNTIME_DIRECTORY/services"/*/service.sh; do
-        [ -f "$service" ] && bash "$service" "$@"
-    done
+    # Invoke services alongside sail (only for docker compose commands)
+    if docker compose "$1" --help &>/dev/null; then
+        for service in "$LARAVEL_RUNTIME_DIRECTORY/services"/*/service.sh; do
+            [ -f "$service" ] && bash "$service" "$@"
+        done
+    fi
 
     SAIL_FILES="$compose_files" "$sail" "$@"
 }

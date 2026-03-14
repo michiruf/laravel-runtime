@@ -28,18 +28,11 @@ function sail {
     rm -f "$site_directory/.env"
     [ -f "$project_path/.env" ] && ln -s "$project_path/.env" "$site_directory/.env"
 
-    # Resolve service compose files for this site
-    local service_compose_files=$(sail-service-compose-files "$site_directory")
-
-    # Determine compose file(s) — site directory always comes first for .env resolution
-    local compose_files
-    if [ -f "$site_directory/docker-compose.override.yml" ]; then
-        compose_files="$site_directory/docker-compose.yml:$LARAVEL_RUNTIME_DIRECTORY/runtime/sail/docker-compose.yml${service_compose_files}:$site_directory/docker-compose.override.yml"
-    elif grep -q '[^[:space:]]' "$site_directory/docker-compose.yml" 2>/dev/null && \
-         ! grep -qx 'services: {}' "$site_directory/docker-compose.yml" 2>/dev/null; then
-        compose_files="$site_directory/docker-compose.yml"
-    else
-        compose_files="$site_directory/docker-compose.yml:$LARAVEL_RUNTIME_DIRECTORY/runtime/sail/docker-compose.yml${service_compose_files}"
+    # Resolve and compile compose configuration
+    local compose_files=$(sail-site-config)
+    if [ -z "$compose_files" ]; then
+        echo "Failed to resolve compose configuration."
+        return 1
     fi
 
     # Pre-build base sail image when building

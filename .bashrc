@@ -34,11 +34,6 @@ function sail {
     export PROJECT_NAME=$(basename "$project_path")
     export PROJECT_PATH="$project_path"
 
-    # Update the hosts file (requires admin privileges for the WSL terminal)
-    if [ "$WSL_UPDATE_HOSTS_FILE" = "true" ]; then
-        $LARAVEL_RUNTIME_DIRECTORY/wsl/update-hosts-file.sh
-    fi
-
     # Determine compose file(s)
     site_directory=$(sail-site-directory "$project_path")
     if [ -n "$site_directory" ] && [ -f "$site_directory/docker-compose.yml" ]; then
@@ -69,40 +64,12 @@ function sail {
         fi
     fi
 
-    # Automatically manage services alongside sail
-    if [[ "$1" == "up" ]]; then
-        sail-services up -d
-    elif [[ "$1" == "down" || "$1" == "stop" ]]; then
-        sail-services "$1"
-    fi
+    # Invoke services alongside sail
+    for service in "$LARAVEL_RUNTIME_DIRECTORY/services"/*/service.sh; do
+        [ -f "$service" ] && bash "$service" "$1"
+    done
 
     SAIL_FILES="$compose_files" $sail $@
-}
-
-function sail-services {
-    # Avoid autocomplete for sail, since autocomplete calls the sail function
-    # Next line did disable the command at all
-    [[ -n "$COMP_LINE" ]] && return
-
-    if [ -z ${LARAVEL_RUNTIME_DIRECTORY+x} ]; then
-        echo 'LARAVEL_RUNTIME_DIRECTORY environment variable must be set'
-        return 1
-    fi
-
-    # Source .env for service flags
-    if [ -f "$LARAVEL_RUNTIME_DIRECTORY/.env" ]; then
-        set -a
-        source "$LARAVEL_RUNTIME_DIRECTORY/.env"
-        set +a
-    fi
-
-    if [ "$SERVICE_LOCAL_PROXY" = "true" ]; then
-        (cd "$LARAVEL_RUNTIME_DIRECTORY/services/local-proxy" && docker-compose "$@")
-    fi
-
-    if [ "$SERVICE_LLM_PROXY" = "true" ]; then
-        (cd "$LARAVEL_RUNTIME_DIRECTORY/services/llm-proxy" && docker-compose "$@")
-    fi
 }
 
 # Resolve the site directory for the current project by walking upward from

@@ -17,6 +17,8 @@ services:
             XDEBUG_MODE: 'debug,coverage' #develop
             XDEBUG_CONFIG: 'client_host=host.docker.internal'
             IGNITION_LOCAL_SITES_PATH: '${PWD}'
+            # PulseAudio for audio playback on host
+            #PULSE_SERVER: unix:/run/user/1000/pulse/native
         volumes:
             - '../../../example:/var/www/html'
             - '../../provision/container/sail-php.sh:/usr/bin/sail-php'
@@ -29,6 +31,11 @@ services:
             #- '~/.claude.json:/home/sail/.claude.json'
             #- '~/.claude.json.backup:/home/sail/.claude.json.backup'
             #- '~/.claude/:/home/sail/.claude/'
+            # PulseAudio for audio playback on host (requires entrypoint & env)
+            #- '/run/user/1000/pulse/native:/run/user/1000/pulse/native'
+            #- '../../../provision/container/install-paplay.sh:/etc/sail-init/01-install-paplay.sh'
+            # PDF to text
+            #- '../../../provision/container/install-pdftotext.sh:/etc/sail-init/01-install-pdftotext.sh'
         # entrypoint: /entrypoint.sh
         networks:
             - sail

@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2155
 
 # Resolve and compile the compose configuration for the current site.
 # For sites with docker-compose.custom.yml: echoes that path (full replacement).

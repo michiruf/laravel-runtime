@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2155
 
 # Resolve the site directory for the current project by walking upward from
 # the given path, building progressively longer relative paths and checking

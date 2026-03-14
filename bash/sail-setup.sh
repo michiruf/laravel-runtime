@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2155
 
 local_project_path="$(pwd)"
 site_directory=$(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/sail-site-directory.sh" "$local_project_path")
@@ -90,5 +89,5 @@ for idx in "${selected_indices[@]}"; do
 done
 
 echo ""
-echo "Created ${site_directory#$LARAVEL_RUNTIME_DIRECTORY/}/"
+echo "Created ${site_directory#"$LARAVEL_RUNTIME_DIRECTORY"/}/"
 echo "Services: $(tr '\n' ' ' < "$site_directory/.sail-services")"

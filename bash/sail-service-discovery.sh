@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2155
 
 # Discover available services by scanning runtime/*/docker-compose.yml
 for service_compose in "$LARAVEL_RUNTIME_DIRECTORY"/runtime/*/docker-compose.yml; do

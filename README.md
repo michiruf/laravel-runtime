@@ -1,92 +1,73 @@
 # Laravel Runtime
 
-This is a laravel runtime for WSL using laravel-sail with a project-independent configuration directory.
+A project-independent Laravel Sail runtime. Manages multiple Laravel projects through a single shared Docker environment
+with automatic service discovery and compose merging.
 
+## Prerequisites
 
-## Prerequisites / Conditions
+* Bash
+* Docker installed and running
 
-* A running WSL machine with bash
-* Docker Desktop is installed and started
-* Your shell must have admin privileges to update the Windows host file
+## Installation
 
+1. Clone this repository anywhere on your machine.
+   > On WSL, avoid cloning under `/mnt` for performance reasons.
+2. Copy `.env.example` to `.env` and adjust settings.
+3. Run `install.sh` to install and register the runtime in your `~/.bashrc`.
 
-## Runtime Installation Steps
+## Adding a Site
 
-1. Clone this repository anywhere to your WSL machine, except the `/mnt` directory.
-2. Execute `install.sh` to add sourcing of this repositories `.bashrc` file to your own `~/.bashrc`.
-3. Validate that the command worked inspecting your `~/.bashrc`.
-4. (optional) Install php and composer dependencies on the WSL machine. This can be done with 
-   `install-prerequisites.sh`, although this script might not be sufficient for all needs.
-5. Start the docker-compose service in your runtime for automatic container discovery.
-   This should in general needed to be done only once.
-   ```shell
-   cd my-runtime-path
-   docker compose up -d
-   ```
+1. From your project directory, run `sail-setup` to interactively select services and create a site configuration under
+   `sites/`.
+2. Run `sail up -d` to start your project.
 
+The runtime resolves your project path automatically to find its site configuration.
 
-## Site Installation Steps
+## Runtime Services
 
-For each site you want to perform these steps to have the runtime set up properly.
+Located in `runtime/`, selectable per site via `sail-setup`:
 
-1. In the WSL machine, navigate to the directory of your project.
-2. Perform `composer install` to fetch laravel-sail in your project.
-   > Since this is a standard dependency we want to use sail from the project rather than supplying one via the runtime.
-3. Navigate to you runtime installation to the `sites` directory.
-4. Copy on the example directories to a new name that matches your project directory name.
-   For example:
-   ```shell
-   cp -R example-8.3 my-new-project
-   ```
-5. Open the docker-compose file in `my-new-project/docker-compose.yml` and replace all occurrences of *example*
-   with *my-new-project*.
-   This should replace:
-   * The sail build context
-   * The `VIRTUAL_HOST` environment variable value
-   * The application volume mapping
-6. Done. Navigate to your project directory and perform `sail up -d` to test if the project can start.
+- MySQL
+- Redis
+- Mailpit
 
+## Configuration
 
-## Automatic Windows Host File Update
+### Runtime `.env`
 
-To automatically update the windows hosts file, perform following steps.
+| Variable                     | Description                            |
+|------------------------------|----------------------------------------|
+| `PHP_VERSION`                | PHP version for the Sail container     |
+| `SAIL_INSTALL_CLAUDE_CODE`   | Install Claude CLI in container        |
+| `SAIL_INSTALL_GEMINI_CLI`    | Install Gemini CLI in container        |
+| `SAIL_INSTALL_PAPLAY`        | Install PulseAudio utilities           |
+| `SAIL_INSTALL_PDFTOTEXT`     | Install PDF text extraction tools      |
+| `MYSQL_CREATE_TEST_DATABASE` | Auto-create a test database on startup |
 
-1. Navigate to `C:\Windows\System32\drivers\etc`.
-2. Copy the `hosts` file to `hosts_template`.
-3. Edit the `hosts_template` file and append
-   ```
-   ############################################
-   # Automatic docker hosts generated with
-   # github.com/michiruf/LaravelRuntime
-   ############################################
-   # update-hosts-file start
-   
-   # update-hosts-file end
-   ############################################
-   ```
-4. Done. The hosts file will get updated between `# update-hosts-file start` and `# update-hosts-file end` whenever a
-   sail command is executed.
+Located in `services/`, toggled via `.env`:
 
+| Service                   | `.env` Flag                     | Description                                                         |
+|---------------------------|---------------------------------|---------------------------------------------------------------------|
+| **local-proxy**           | `SERVICE_LOCAL_PROXY`           | Nginx reverse proxy for `*.local` domains                           |
+| **llm-proxy**             | `SERVICE_LLM_PROXY`             | LiteLLM gateway for LLM API routing                                 |
+| **update-wsl-hosts-file** | `SERVICE_UPDATE_WSL_HOSTS_FILE` | Syncs Docker hosts to Windows hosts file (WSL only, requires admin) |
 
-## Site Installation in PHPStorm
+### Site Configuration
 
-1. Open the settings in PHPStorm
-2. Navigate to the main configuration for **PHP**
-3. In this window, find the setting for the CLI Interpreter
-4. Click on dot-menu to open the CLI Interpreter configuration dialog
-5. Click on the plus icon to add a new docker-compose interpreter
-6. Choose docker-compose
-7. Add a new server and select **WSL** from the radio select
-8. For the configuration file, navigate to your runtime installation path and find the `docker-compose.yml` in the
-   sites folder for the project you are currently configuring
-9. Select the service *laravel-test* and hit OK
-10. (recommended) Set the lifecycle to *Connect to existing container*
-11. Done. Tests should now be runnable in PHPStorm.
-12. *Optional*: use sail-php as php executable, to have it being run as sail user instead of root
+Each site directory under `sites/` can contain:
 
+| File                          | Purpose                                     |
+|-------------------------------|---------------------------------------------|
+| `.sail-services`              | Selected services (one per line)            |
+| `docker-compose.override.yml` | Overrides merged with runtime service files |
+| `docker-compose.custom.yml`   | Full custom compose (replaces all merging)  |
 
-## Related Information
+## PHPStorm Integration
 
-* Configuring Windows Defender exclusion rules: https://github.com/microsoft/WSL/issues/8995#issuecomment-1380187901
-  > [!WARNING]  
-  > Might make your system vulnerable. Perform on your own risk!
+1. Open **Settings > PHP > CLI Interpreter**.
+2. Add a new **Docker Compose** interpreter.
+3. Select the appropriate server type (e.g. **WSL** on Windows, **Docker** on Linux/macOS).
+4. Point to the `docker-compose.yml` in your site's directory under `sites/`.
+5. Select the `laravel.test` service.
+6. Set lifecycle to *Connect to existing container*.
+7. (Optional) Use `sail-php` as the PHP executable to run as the sail user.

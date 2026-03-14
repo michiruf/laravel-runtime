@@ -52,5 +52,11 @@ function sail {
         done
     fi
 
-    SAIL_FILES="$compose_files" "$LARAVEL_RUNTIME_DIRECTORY/vendor/bin/sail" "$@"
+    # Remove orphan containers by default for up/down
+    local args=("$@")
+    if [[ "$1" == "up" || "$1" == "down" ]]; then
+        args+=("--remove-orphans")
+    fi
+
+    SAIL_FILES="$compose_files" "$LARAVEL_RUNTIME_DIRECTORY/vendor/bin/sail" "${args[@]}"
 }

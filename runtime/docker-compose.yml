@@ -40,8 +40,6 @@ services:
         restart: unless-stopped
     mysql:
         image: 'mysql/mysql-server:8.0'
-        ports:
-            - '33006:3306'
         expose:
             - '3306'
         environment:

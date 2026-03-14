@@ -109,40 +109,59 @@ function sail-setup {
 
     local project_path="$(pwd)"
 
-    # Build path options by walking up from current directory
-    local options=()
-    local search_path="$project_path"
-    local relative_path=""
+    # Check if a site directory already exists for this project
+    local site_directory
+    site_directory=$(sail-site-directory "$project_path")
 
-    while [ "$search_path" != "/" ]; do
-        local segment=$(basename "$search_path")
+    if [ -n "$site_directory" ]; then
+        local relative="${site_directory#$LARAVEL_RUNTIME_DIRECTORY/}"
+        echo "Using existing site: $relative"
+    else
+        # Build path options by walking up from current directory
+        local options=()
+        local search_path="$project_path"
+        local relative_path=""
 
-        if [ -z "$relative_path" ]; then
-            relative_path="$segment"
-        else
-            relative_path="$segment/$relative_path"
+        while [ "$search_path" != "/" ]; do
+            local segment=$(basename "$search_path")
+
+            if [ -z "$relative_path" ]; then
+                relative_path="$segment"
+            else
+                relative_path="$segment/$relative_path"
+            fi
+
+            # Skip paths that conflict with an existing site directory
+            local candidate="$LARAVEL_RUNTIME_DIRECTORY/sites/$relative_path"
+            if [ ! -d "$candidate" ]; then
+                options+=("$relative_path")
+            fi
+
+            search_path=$(dirname "$search_path")
+        done
+
+        if [ ${#options[@]} -eq 0 ]; then
+            echo "No available site paths (all conflict with existing sites)."
+            return 1
         fi
 
-        options+=("$relative_path")
-        search_path=$(dirname "$search_path")
-    done
+        # Present options to user
+        echo "Select site path:"
+        for i in "${!options[@]}"; do
+            echo "  $((i + 1))) ${options[$i]}"
+        done
 
-    # Present options to user
-    echo "Select site path:"
-    for i in "${!options[@]}"; do
-        echo "  $((i + 1))) ${options[$i]}"
-    done
+        local choice
+        read -rp "Choice [1]: " choice
+        choice="${choice:-1}"
 
-    local choice
-    read -rp "Choice [1]: " choice
-    choice="${choice:-1}"
+        if ! [[ "$choice" =~ ^[0-9]+$ ]] || [ "$choice" -lt 1 ] || [ "$choice" -gt "${#options[@]}" ]; then
+            echo "Invalid choice."
+            return 1
+        fi
 
-    if ! [[ "$choice" =~ ^[0-9]+$ ]] || [ "$choice" -lt 1 ] || [ "$choice" -gt "${#options[@]}" ]; then
-        echo "Invalid choice."
-        return 1
+        site_directory="$LARAVEL_RUNTIME_DIRECTORY/sites/${options[$((choice - 1))]}"
     fi
-
-    local site_directory="$LARAVEL_RUNTIME_DIRECTORY/sites/${options[$((choice - 1))]}"
 
     mkdir -p "$site_directory"
 

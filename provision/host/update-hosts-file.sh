@@ -14,8 +14,9 @@ if [ ! -f "$hosts_template_file" ]; then
   exit 1
 fi
 
-updated_hosts="$(ls "$LARAVEL_RUNTIME_DIRECTORY/sites" | sed "s/^/127.0.0.1 /" | sed "s/$/.local/" | tr '\n' '@' | sed 's/@/\\n/g')"
-updated_hosts_mailpit="$(ls "$LARAVEL_RUNTIME_DIRECTORY/sites" | sed "s/^/127.0.0.1 mail./" | sed "s/$/.local/" | tr '\n' '@' | sed 's/@/\\n/g')"
+sites="$(find "$LARAVEL_RUNTIME_DIRECTORY/sites" -name docker-compose.yml -printf '%h\n' | xargs -I{} basename {})"
+updated_hosts="$(echo "$sites" | sed "s/^/127.0.0.1 /" | sed "s/$/.local/" | tr '\n' '@' | sed 's/@/\\n/g')"
+updated_hosts_mailpit="$(echo "$sites" | sed "s/^/127.0.0.1 mail./" | sed "s/$/.local/" | tr '\n' '@' | sed 's/@/\\n/g')"
 sed "
 /# update-hosts-file start/,/# update-hosts-file end/{
   /# update-hosts-file start/!{

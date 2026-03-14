@@ -1,0 +1,37 @@
+services:
+    laravel.test:
+        depends_on:
+            - mysql
+    mysql:
+        image: 'mysql/mysql-server:8.0'
+        expose:
+            - '3306'
+        environment:
+            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ROOT_HOST: '%'
+            MYSQL_DATABASE: '${DB_DATABASE}'
+            MYSQL_USER: '${DB_USERNAME}'
+            MYSQL_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ALLOW_EMPTY_PASSWORD: 1
+            MYSQL_CREATE_TEST_DATABASE: '${MYSQL_CREATE_TEST_DATABASE:-true}'
+        volumes:
+            - 'sail-mysql:/var/lib/mysql'
+            - '${LARAVEL_RUNTIME_DIRECTORY}/runtime/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
+        networks:
+            - sail
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
+            retries: 3
+            timeout: 5s
+        restart: unless-stopped
+
+networks:
+    sail:
+        driver: bridge
+
+volumes:
+    sail-mysql:
+        driver: local
+        driver_opts:
+            type: tmpfs
+            device: tmpfs

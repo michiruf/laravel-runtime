@@ -1,0 +1,28 @@
+services:
+    laravel.test:
+        depends_on:
+            - redis
+    redis:
+        image: 'redis:alpine'
+        expose:
+            - '6379'
+        volumes:
+            - 'sail-redis:/data'
+        networks:
+            - sail
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            retries: 3
+            timeout: 5s
+        restart: unless-stopped
+
+networks:
+    sail:
+        driver: bridge
+
+volumes:
+    sail-redis:
+        driver: local
+        driver_opts:
+            type: tmpfs
+            device: tmpfs

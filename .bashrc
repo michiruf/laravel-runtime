@@ -35,17 +35,21 @@ function sail {
         ln -s "$project_path/.env" "$site_directory/.env"
     fi
 
+    # Resolve service compose files for this site
+    local service_compose_files
+    service_compose_files=$(sail-service-compose-files "$site_directory")
+
     # Determine compose file(s) — site directory always comes first for .env resolution
     if [ -f "$site_directory/docker-compose.override.yml" ]; then
-        # Site compose + shared + override
-        compose_files="$site_directory/docker-compose.yml:$LARAVEL_RUNTIME_DIRECTORY/runtime/docker-compose.yml:$site_directory/docker-compose.override.yml"
+        # Site compose + shared + services + override
+        compose_files="$site_directory/docker-compose.yml:$LARAVEL_RUNTIME_DIRECTORY/runtime/sail/docker-compose.yml${service_compose_files}:$site_directory/docker-compose.override.yml"
     elif grep -q '[^[:space:]]' "$site_directory/docker-compose.yml" 2>/dev/null && \
          ! grep -qx 'services: {}' "$site_directory/docker-compose.yml" 2>/dev/null; then
         # Full custom compose (more than just the minimal stub)
         compose_files="$site_directory/docker-compose.yml"
     else
-        # Minimal site compose + shared
-        compose_files="$site_directory/docker-compose.yml:$LARAVEL_RUNTIME_DIRECTORY/runtime/docker-compose.yml"
+        # Minimal site compose + shared + services
+        compose_files="$site_directory/docker-compose.yml:$LARAVEL_RUNTIME_DIRECTORY/runtime/sail/docker-compose.yml${service_compose_files}"
     fi
 
     # Pre-build base sail image when building
@@ -147,6 +151,63 @@ function sail-setup {
 services: {}
 COMPOSE
 
+    # Discover available services
+    local available_services=()
+    while IFS= read -r svc; do
+        available_services+=("$svc")
+    done < <(sail-service-discovery)
+
+    # Read existing selection as defaults (or default to all)
+    local current_services=()
+    if [ -f "$site_directory/.sail-services" ]; then
+        while IFS= read -r line || [ -n "$line" ]; do
+            [ -n "$line" ] && current_services+=("$line")
+        done < "$site_directory/.sail-services"
+    else
+        current_services=("${available_services[@]}")
+    fi
+
+    # Build default indices
+    local default_indices=()
+    for i in "${!available_services[@]}"; do
+        for current in "${current_services[@]}"; do
+            if [ "${available_services[$i]}" = "$current" ]; then
+                default_indices+=("$((i + 1))")
+                break
+            fi
+        done
+    done
+    local default_choice
+    default_choice=$(IFS=,; echo "${default_indices[*]}")
+
+    # Present service selection
+    echo ""
+    echo "Select services (comma-separated, or Enter for defaults):"
+    for i in "${!available_services[@]}"; do
+        local marker=""
+        for current in "${current_services[@]}"; do
+            if [ "${available_services[$i]}" = "$current" ]; then
+                marker=" (default)"
+                break
+            fi
+        done
+        echo "  $((i + 1))) ${available_services[$i]}${marker}"
+    done
+
+    local service_choice
+    read -rp "Choice [$default_choice]: " service_choice
+    service_choice="${service_choice:-$default_choice}"
+
+    # Parse selection and write .sail-services
+    > "$site_directory/.sail-services"
+    IFS=',' read -ra selected_indices <<< "$service_choice"
+    for idx in "${selected_indices[@]}"; do
+        idx=$(echo "$idx" | tr -d ' ')
+        if [[ "$idx" =~ ^[0-9]+$ ]] && [ "$idx" -ge 1 ] && [ "$idx" -le "${#available_services[@]}" ]; then
+            echo "${available_services[$((idx - 1))]}" >> "$site_directory/.sail-services"
+        fi
+    done
+
     # Symlink project .env into site directory
     rm -f "$site_directory/.env"
     if [ -f "$project_path/.env" ]; then
@@ -154,7 +215,53 @@ COMPOSE
     fi
 
     local relative="${site_directory#$LARAVEL_RUNTIME_DIRECTORY/}"
+    echo ""
     echo "Created $relative/"
+    echo "Services: $(cat "$site_directory/.sail-services" | tr '\n' ' ')"
+}
+
+# Discover available services by scanning runtime/*/docker-compose.yml
+function sail-service-discovery {
+    sail-runtime-check
+
+    for service_compose in "$LARAVEL_RUNTIME_DIRECTORY"/runtime/*/docker-compose.yml; do
+        if [ -f "$service_compose" ]; then
+            # Exclude the sail directory (not a service)
+            local dir_name
+            dir_name=$(basename "$(dirname "$service_compose")")
+            [ "$dir_name" != "sail" ] && echo "$dir_name"
+        fi
+    done
+}
+
+# Return colon-separated compose file paths for the given site directory's services.
+# Reads from .sail-services if present, otherwise falls back to all discovered services.
+function sail-service-compose-files {
+    sail-runtime-check
+
+    local site_directory="$1"
+    local services=()
+
+    if [ -n "$site_directory" ] && [ -f "$site_directory/.sail-services" ]; then
+        while IFS= read -r line || [ -n "$line" ]; do
+            [ -n "$line" ] && services+=("$line")
+        done < "$site_directory/.sail-services"
+    else
+        # Backwards compat: no .sail-services means include all services
+        while IFS= read -r line; do
+            services+=("$line")
+        done < <(sail-service-discovery)
+    fi
+
+    local result=""
+    for service in "${services[@]}"; do
+        local compose_file="$LARAVEL_RUNTIME_DIRECTORY/runtime/$service/docker-compose.yml"
+        if [ -f "$compose_file" ]; then
+            result="$result:$compose_file"
+        fi
+    done
+
+    echo "$result"
 }
 
 function sail-runtime-check {

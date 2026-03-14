@@ -1,0 +1,43 @@
+services:
+    laravel.test:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                PHP_VERSION: '${PHP_VERSION:-8.4}'
+                SAIL_INSTALL_CLAUDE_CODE: '${SAIL_INSTALL_CLAUDE_CODE:-false}'
+                SAIL_INSTALL_GEMINI_CLI: '${SAIL_INSTALL_GEMINI_CLI:-false}'
+                SAIL_INSTALL_PAPLAY: '${SAIL_INSTALL_PAPLAY:-false}'
+                SAIL_INSTALL_PDFTOTEXT: '${SAIL_INSTALL_PDFTOTEXT:-false}'
+        image: php-runtime-${PHP_VERSION:-8.4}/app
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        expose:
+            - '80'
+        environment:
+            VIRTUAL_HOST: ${PROJECT_NAME}.local
+            WWWUSER: 1000
+            LARAVEL_SAIL: 1
+            XDEBUG_MODE: 'debug,coverage'
+            XDEBUG_CONFIG: 'client_host=host.docker.internal'
+            IGNITION_LOCAL_SITES_PATH: '${PWD}'
+        volumes:
+            - '${PROJECT_PATH}:/var/www/html'
+            # Composer auth (optional)
+            #- '~/.config/composer/auth.json:/home/sail/.config/composer/auth.json'
+            # Claude state (mount if INSTALL_CLAUDE_CODE=true)
+            #- '~/.claude.json:/home/sail/.claude.json'
+            #- '~/.claude.json.backup:/home/sail/.claude.json.backup'
+            #- '~/.claude.json:/home/sail/.claude/'
+            # Gemini state (mount if INSTALL_GEMINI_CLI=true)
+            #- '~/.gemini/:/home/sail/.gemini/'
+        networks:
+            - sail
+            - proxy
+        restart: unless-stopped
+
+networks:
+    sail:
+        driver: bridge
+    proxy:
+        external: true

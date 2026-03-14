@@ -9,16 +9,14 @@ function sail {
         return 1
     fi
 
-    project_path="$(pwd)"
-
-    if [ -f sail ]; then
-        sail="sail"
-    elif [ -f vendor/bin/sail ]; then
-        sail="vendor/bin/sail"
-    else
-        echo "There is no sail installed in this project ($(basename "$project_path"))"
+    # Check if runtime was installed
+    sail="$LARAVEL_RUNTIME_DIRECTORY/vendor/bin/sail"
+    if [ ! -f "$sail" ]; then
+        echo "Sail is not installed. Run install.sh of the runtime first."
         return 1
     fi
+
+    project_path="$(pwd)"
 
     # Source global runtime defaults
     if [ -f "$LARAVEL_RUNTIME_DIRECTORY/.env" ]; then
@@ -38,7 +36,6 @@ function sail {
 
     # Determine compose file(s)
     site_directory=$(sail-site-directory "$project_path")
-
     if [ -n "$site_directory" ] && [ -f "$site_directory/docker-compose.yml" ]; then
         # Full custom compose
         compose_files="$site_directory/docker-compose.yml"

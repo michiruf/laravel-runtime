@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+[ "$MYSQL_CREATE_TEST_DATABASE" != "true" ] && exit 0
 
 mysql --user=root --password="$MYSQL_ROOT_PASSWORD" <<-EOSQL
     CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE}_test;

@@ -1,38 +1,36 @@
 services:
     laravel.test:
         build:
-            context: ../../../[[name]]/vendor/laravel/sail/runtimes/8.3
+            context: ./sail
             dockerfile: Dockerfile
             args:
-                WWWGROUP: 1000
-        image: sail-8.3/app
+                PHP_VERSION: '${PHP_VERSION:-8.4}'
+                SAIL_INSTALL_CLAUDE_CODE: '${SAIL_INSTALL_CLAUDE_CODE:-false}'
+                SAIL_INSTALL_GEMINI_CLI: '${SAIL_INSTALL_GEMINI_CLI:-false}'
+                SAIL_INSTALL_PAPLAY: '${SAIL_INSTALL_PAPLAY:-false}'
+                SAIL_INSTALL_PDFTOTEXT: '${SAIL_INSTALL_PDFTOTEXT:-false}'
+        image: php-runtime-${PHP_VERSION:-8.4}/app
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         expose:
             - '80'
         environment:
-            VIRTUAL_HOST: [[name]].local
+            VIRTUAL_HOST: ${PROJECT_NAME}.local
             WWWUSER: 1000
             LARAVEL_SAIL: 1
-            XDEBUG_MODE: 'debug,coverage' #develop
+            XDEBUG_MODE: 'debug,coverage'
             XDEBUG_CONFIG: 'client_host=host.docker.internal'
             IGNITION_LOCAL_SITES_PATH: '${PWD}'
         volumes:
-            - '../../../[[name]]:/var/www/html'
-            - '../../provision/container/sail-php.sh:/usr/bin/sail-php'
-            - '../../provision/container/sail-php.ini:/etc/php/8.3/cli/conf.d/99-sail.ini'
-            # Enable if composer auth should be mounted:
+            - '${PROJECT_PATH}:/var/www/html'
+            # Composer auth (optional)
             #- '~/.config/composer/auth.json:/home/sail/.config/composer/auth.json'
-            # Claude (requires entrypoint)
-            #- '../../provision/container/entrypoint.sh:/entrypoint.sh'
-            #- '../../provision/container/install-claude-code.sh:/etc/sail-init/01-install-claude-code.sh'
+            # Claude state (mount if INSTALL_CLAUDE_CODE=true)
             #- '~/.claude.json:/home/sail/.claude.json'
             #- '~/.claude.json.backup:/home/sail/.claude.json.backup'
             #- '~/.claude/:/home/sail/.claude/'
-            # Gemini (requires entrypoint)
-            #- '../../provision/container/install-gemini-cli.sh:/etc/sail-init/01-install-gemini-cli.sh'
+            # Gemini state (mount if INSTALL_GEMINI_CLI=true)
             #- '~/.gemini/:/home/sail/.gemini/'
-        # entrypoint: /entrypoint.sh
         networks:
             - sail
             - proxy
@@ -53,17 +51,14 @@ services:
             MYSQL_USER: '${DB_USERNAME}'
             MYSQL_PASSWORD: '${DB_PASSWORD}'
             MYSQL_ALLOW_EMPTY_PASSWORD: 1
+            MYSQL_CREATE_TEST_DATABASE: '${MYSQL_CREATE_TEST_DATABASE:-true}'
         volumes:
             - 'sail-mysql:/var/lib/mysql'
-            - '../../provision/container/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
+            - '${LARAVEL_RUNTIME_DIRECTORY}/runtime/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
         networks:
             - sail
         healthcheck:
-            test:
-                - CMD
-                - mysqladmin
-                - ping
-                - '-p${DB_PASSWORD}'
+            test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
             retries: 3
             timeout: 5s
         restart: unless-stopped
@@ -76,20 +71,17 @@ services:
         networks:
             - sail
         healthcheck:
-            test:
-                - CMD
-                - redis-cli
-                - ping
+            test: ["CMD", "redis-cli", "ping"]
             retries: 3
             timeout: 5s
         restart: unless-stopped
     mailpit:
         image: 'axllent/mailpit:latest'
         expose:
-            - '1025' # Mailpit
-            - '8025' # Dashboard
+            - '1025'
+            - '8025'
         environment:
-            VIRTUAL_HOST: mail.[[name]].local
+            VIRTUAL_HOST: mail.${PROJECT_NAME}.local
             VIRTUAL_PORT: 8025
         networks:
             - sail
@@ -104,7 +96,6 @@ networks:
 volumes:
     sail-mysql:
         driver: local
-        # This speeds up test execution by a huge amount, but data will be lost after shutdown
         driver_opts:
             type: tmpfs
             device: tmpfs

@@ -16,57 +16,85 @@ function sail {
     elif [ -f vendor/bin/sail ]; then
         sail="vendor/bin/sail"
     else
-        project_name=$(basename "$project_path")
-        echo "There is no sail installed in this project ($project_name)"
+        echo "There is no sail installed in this project ($(basename "$project_path"))"
         return 1
     fi
 
-    site_directory=$(sail-site-directory "$project_path")
-    if [ -z "$site_directory" ]; then
-        echo "There is no site configured for this project (searched up from $project_path)"
-        return 1
+    # Source global runtime defaults
+    if [ -f "$LARAVEL_RUNTIME_DIRECTORY/.env" ]; then
+        set -a
+        source "$LARAVEL_RUNTIME_DIRECTORY/.env"
+        set +a
     fi
 
-    # Check if docker-compose.yml exists
-    if [ ! -f "$site_directory/docker-compose.yml" ]; then
-        echo "There is no docker-compose file for this project in $site_directory/docker-compose.yml"
-        return 1
-    fi
+    # Set project vars for the shared docker-compose
+    export PROJECT_NAME=$(basename "$project_path")
+    export PROJECT_PATH="$project_path"
 
     # Update the hosts file
     # This requires administrator privileges
-    # When the entrypoint is PHPStorm, it needs to be started as administrator
-    # When the entrypoint is Powershell, it needs to be started as administrator
-    $LARAVEL_RUNTIME_DIRECTORY/provision/host/update-hosts-file.sh
+    $LARAVEL_RUNTIME_DIRECTORY/wsl/update-hosts-file.sh
 
-    # Symbolic link the env file, since docker is again totally restrictive without printing errors..
-    rm -f $site_directory/.env
-    if [ -f $project_path/.env ]; then
-        relative_env=$(realpath --relative-to="$site_directory" $project_path/.env)
-        ln -s $relative_env $site_directory/.env
+    # Determine compose file(s)
+    site_directory=$(sail-site-directory "$project_path")
+
+    if [ -n "$site_directory" ] && [ -f "$site_directory/docker-compose.yml" ]; then
+        # Full custom compose
+        compose_files="$site_directory/docker-compose.yml"
+        # Symlink .env for docker-compose
+        rm -f "$site_directory/.env"
+        if [ -f "$project_path/.env" ]; then
+            ln -s "$(realpath --relative-to="$site_directory" "$project_path/.env")" "$site_directory/.env"
+        fi
+    elif [ -n "$site_directory" ] && [ -f "$site_directory/docker-compose.override.yml" ]; then
+        # Shared + override
+        compose_files="$LARAVEL_RUNTIME_DIRECTORY/runtime/docker-compose.yml:$site_directory/docker-compose.override.yml"
     else
-        echo -e "\033[0;33mWARNING\033[0m: There is no .env file in $project_path"
+        # Shared only
+        compose_files="$LARAVEL_RUNTIME_DIRECTORY/runtime/docker-compose.yml"
     fi
 
-    # Finally call sail to handle the command
-    SAIL_FILES="$site_directory/docker-compose.yml" $sail $@
+    # Pre-build base Sail image when building
+    if [[ "$1" == "build" || "$1" == "up" ]]; then
+        local php_version="${PHP_VERSION:-8.4}"
+        local sail_runtime="$LARAVEL_RUNTIME_DIRECTORY/vendor/laravel/sail/runtimes/$php_version"
+        if [ -d "$sail_runtime" ]; then
+            echo "Building base Sail image (PHP $php_version)..."
+            docker build -t "sail-${php_version}/app" --build-arg WWWGROUP=1000 "$sail_runtime"
+        fi
+    fi
+
+    # Automatically manage services alongside sail
+    if [[ "$1" == "up" ]]; then
+        sail-services up -d
+    elif [[ "$1" == "down" || "$1" == "stop" ]]; then
+        sail-services "$1"
+    fi
+
+    SAIL_FILES="$compose_files" $sail $@
 }
 
-function sail-runtime {
-    # Avoid autocomplete for sail-runtime, since autocomplete calls the sail-runtime function
-    # Next line did disable the command at all
+function sail-services {
     [[ -n "$COMP_LINE" ]] && return
 
-    # Requires $LARAVEL_RUNTIME_DIRECTORY to be set
     if [ -z ${LARAVEL_RUNTIME_DIRECTORY+x} ]; then
         echo 'LARAVEL_RUNTIME_DIRECTORY environment variable must be set'
         return 1
     fi
 
-    (cd $LARAVEL_RUNTIME_DIRECTORY/services/local-proxy && docker-compose $@)
+    # Source .env for service flags
+    if [ -f "$LARAVEL_RUNTIME_DIRECTORY/.env" ]; then
+        set -a
+        source "$LARAVEL_RUNTIME_DIRECTORY/.env"
+        set +a
+    fi
 
-    if [ "$LARAVEL_RUNTIME_LLM_PROXY_ENABLED" = "true" ]; then
-        (cd $LARAVEL_RUNTIME_DIRECTORY/services/llm-proxy && docker-compose $@)
+    if [ "$SERVICE_LOCAL_PROXY" = "true" ]; then
+        (cd "$LARAVEL_RUNTIME_DIRECTORY/services/local-proxy" && docker-compose "$@")
+    fi
+
+    if [ "$SERVICE_LLM_PROXY" = "true" ]; then
+        (cd "$LARAVEL_RUNTIME_DIRECTORY/services/llm-proxy" && docker-compose "$@")
     fi
 }
 
@@ -99,7 +127,7 @@ function sail-site-directory {
         fi
 
         local candidate="$LARAVEL_RUNTIME_DIRECTORY/sites/$relative_path"
-        if [ -f "$candidate/docker-compose.yml" ]; then
+        if [ -d "$candidate" ]; then
             echo "$candidate"
             return 0
         fi

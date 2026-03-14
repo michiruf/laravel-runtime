@@ -4,3 +4,4 @@
 /sites/**/.env
 !/sites/example/
 /**/.env
+composer.lock

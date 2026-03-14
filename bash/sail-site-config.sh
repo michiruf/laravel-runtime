@@ -15,6 +15,10 @@ function sail-site-config {
         return 0
     fi
 
+    # Temporary stub so docker compose resolves .env from the site directory
+    local stub_file="$site_directory/docker-compose.stub.yml"
+    echo 'services: {}' > "$stub_file"
+
     # Merge mode: runtime + services + optional override
     local service_compose_files=$(sail-service-compose-files "$site_directory")
     local compose_files="$stub_file${service_compose_files}"
@@ -32,5 +36,6 @@ function sail-site-config {
     done
 
     "${compose_cmd[@]}" config > "$config_file"
+    rm -f "$stub_file"
     echo "$config_file"
 }

@@ -1,0 +1,7 @@
+services:
+    laravel.test:
+        build:
+            args:
+                SAIL_INSTALL_GEMINI_CLI: 'true'
+        volumes:
+            - '~/.gemini/:/home/sail/.gemini/'

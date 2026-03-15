@@ -14,10 +14,10 @@ COPY sail-php.ini /etc/php/${PHP_VERSION}/cli/conf.d/99-sail.ini
 COPY sail-php.sh /usr/bin/sail-php
 RUN chmod +x /usr/bin/sail-php
 
-# Copy all feature scripts and run them automatically
+# Copy and run feature install scripts
 # Each script checks its own build arg and exits early if not enabled
-# To add a new feature: just add a new script to features/
-COPY features/ /tmp/features/
-RUN chmod +x /tmp/features/*.sh && \
-    for script in /tmp/features/*.sh; do "$script"; done && \
+# To add a new feature: create a subdirectory with an install.sh
+COPY . /tmp/features/
+RUN chmod +x /tmp/features/*/install.sh && \
+    for script in /tmp/features/*/install.sh; do "$script"; done && \
     rm -rf /tmp/features

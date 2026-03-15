@@ -52,6 +52,30 @@ Located in `services/`, toggled via `.env`:
 | **llm-proxy**             | `SERVICE_LLM_PROXY`             | LiteLLM gateway for LLM API routing                                 |
 | **update-wsl-hosts-file** | `SERVICE_UPDATE_WSL_HOSTS_FILE` | Syncs Docker hosts to Windows hosts file (WSL only, requires admin) |
 
+### Conditional Feature Compose Files
+
+Feature-specific compose and install files are auto-discovered from `runtime/{service}/{feature}/`.
+A feature is included when its corresponding env var is set to `true` in `.env`.
+
+The env var name is derived from the path: `{SERVICE}_{FEATURE}`, uppercased with dashes replaced by underscores.
+
+| Directory | Env var |
+|-----------|---------|
+| `runtime/sail/install-claude-code/` | `SAIL_INSTALL_CLAUDE_CODE` |
+| `runtime/sail/install-gemini-cli/` | `SAIL_INSTALL_GEMINI_CLI` |
+| `runtime/sail/install-paplay/` | `SAIL_INSTALL_PAPLAY` |
+| `runtime/sail/install-pdftotext/` | `SAIL_INSTALL_PDFTOTEXT` |
+| `runtime/mysql/create-test-database/` | `MYSQL_CREATE_TEST_DATABASE` |
+
+Each feature directory can contain:
+
+| File | Purpose |
+|------|---------|
+| `docker-compose.yml` | Merged into the compose configuration |
+| `install.sh` | Build-time install script (sail features) |
+
+To add a new feature: create `runtime/{service}/{feature}/` with a `docker-compose.yml` and add `{SERVICE}_{FEATURE}=true` to `.env`.
+
 ### Site Configuration
 
 Each site directory under `sites/` can contain:

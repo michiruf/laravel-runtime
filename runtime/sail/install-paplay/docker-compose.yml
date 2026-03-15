@@ -1,0 +1,9 @@
+services:
+    laravel.test:
+        build:
+            args:
+                SAIL_INSTALL_PAPLAY: 'true'
+        environment:
+            PULSE_SERVER: unix:/run/user/1000/pulse/native
+        volumes:
+            - '/run/user/1000/pulse/native:/run/user/1000/pulse/native'

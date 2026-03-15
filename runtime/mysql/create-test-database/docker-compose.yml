@@ -1,0 +1,4 @@
+services:
+    mysql:
+        volumes:
+            - '${LARAVEL_RUNTIME_DIRECTORY}/runtime/mysql/create-test-database/install.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'

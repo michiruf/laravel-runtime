@@ -9,8 +9,10 @@ if [ -z "$site_directory" ]; then
     exit 1
 fi
 
-# Full custom compose — use as-is
+# Full custom compose — symlink project .env and use as-is
 if [ -f "$site_directory/docker-compose.custom.yml" ]; then
+    rm -f "$site_directory/.env"
+    [ -f "$(pwd)/.env" ] && ln -sr "$(pwd)/.env" "$site_directory/.env"
     echo "$site_directory/docker-compose.custom.yml"
     exit 0
 fi

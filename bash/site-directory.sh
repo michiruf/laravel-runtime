@@ -19,6 +19,6 @@ while [ "$search_path" != "/" ]; do
     search_path=$(dirname "$search_path")
 done
 
-echo "No site directory found for '$(basename "${1:-$(pwd)}")'." >&2
+echo "No site directory found for '$PROJECT_NAME'." >&2
 echo "Run 'sail-setup' from your project directory first." >&2
 exit 1

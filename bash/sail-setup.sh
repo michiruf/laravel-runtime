@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 
-local_project_path="$(pwd)"
-site_directory=$(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/site-directory.sh" "$local_project_path")
+source "$LARAVEL_RUNTIME_DIRECTORY/bash/env.sh"
+
+site_directory=$(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/site-directory.sh")
 
 if [ -n "$site_directory" ]; then
-    echo "Using existing site: ${site_directory#$LARAVEL_RUNTIME_DIRECTORY/}"
+    echo "Using existing site: ${site_directory#"$LARAVEL_RUNTIME_DIRECTORY"/}"
 else
     options=()
-    search_path="$local_project_path"
+    search_path="$PROJECT_PATH"
     relative_path=""
 
     while [ "$search_path" != "/" ]; do

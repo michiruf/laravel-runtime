@@ -4,7 +4,7 @@
 # For sites with docker-compose.custom.yml: echoes that path (full replacement).
 # For merge-based sites: compiles all compose files into docker-compose.yml.
 
-site_directory=$(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/sail-site-directory.sh") || exit 1
+site_directory=$(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/site-directory.sh") || exit 1
 
 # Full custom compose — symlink project .env and use as-is
 if [ -f "$site_directory/docker-compose.custom.yml" ]; then
@@ -15,7 +15,7 @@ if [ -f "$site_directory/docker-compose.custom.yml" ]; then
 fi
 
 # Merge mode: runtime + services + optional override
-compose_files=$(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/sail-service-compose-files.sh" "$site_directory")
+compose_files=$(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/site-compose-files.sh" "$site_directory")
 
 if [ -f "$site_directory/docker-compose.override.yml" ]; then
     compose_files="$compose_files:$site_directory/docker-compose.override.yml"

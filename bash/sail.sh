@@ -13,13 +13,13 @@ export PROJECT_NAME
 export PROJECT_PATH
 
 # Resolve and compile compose configuration
-compose_file=$(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/sail-site-compose.sh") || exit 1
+compose_file=$(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/site-compose.sh") || exit 1
 
 # Pre-build base sail image when building
-bash "$LARAVEL_RUNTIME_DIRECTORY/bash/sail-build-base.sh" "$@" || exit 1
+bash "$LARAVEL_RUNTIME_DIRECTORY/bash/build-base.sh" "$@" || exit 1
 
 # Invoke services alongside sail
-bash "$LARAVEL_RUNTIME_DIRECTORY/bash/sail-service-start.sh" "$@" || exit 1
+bash "$LARAVEL_RUNTIME_DIRECTORY/bash/service-start.sh" "$@" || exit 1
 
 # Remove orphan containers by default for up/down
 args=("$@")

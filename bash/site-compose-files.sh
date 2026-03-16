@@ -11,7 +11,7 @@ if [ -n "$site_directory" ] && [ -f "$site_directory/.sail-services" ]; then
         [ -n "$line" ] && services+=("$line")
     done < "$site_directory/.sail-services"
 else
-    while IFS= read -r line; do services+=("$line"); done < <(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/sail-service-discovery.sh")
+    while IFS= read -r line; do services+=("$line"); done < <(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/runtime-discovery.sh")
 fi
 
 result="$LARAVEL_RUNTIME_DIRECTORY/runtime/sail/docker-compose.yml"

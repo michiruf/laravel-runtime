@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 local_project_path="$(pwd)"
-site_directory=$(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/sail-site-directory.sh" "$local_project_path")
+site_directory=$(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/site-directory.sh" "$local_project_path")
 
 if [ -n "$site_directory" ]; then
     echo "Using existing site: ${site_directory#$LARAVEL_RUNTIME_DIRECTORY/}"
@@ -43,7 +43,7 @@ mkdir -p "$site_directory"
 
 # Discover available services
 available_services=()
-while IFS= read -r svc; do available_services+=("$svc"); done < <(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/sail-service-discovery.sh")
+while IFS= read -r svc; do available_services+=("$svc"); done < <(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/runtime-discovery.sh")
 
 # Load existing selection as defaults, or default to all
 current_services=()

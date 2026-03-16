@@ -2,7 +2,7 @@
 
 source "$LARAVEL_RUNTIME_DIRECTORY/bash/env.sh"
 
-site_directory=$(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/site-directory.sh")
+site_directory=$(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/site-directory.sh" 2>/dev/null)
 
 if [ -n "$site_directory" ]; then
     echo "Using existing site: ${site_directory#"$LARAVEL_RUNTIME_DIRECTORY"/}"

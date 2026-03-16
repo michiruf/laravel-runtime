@@ -62,7 +62,8 @@ for svc in "${current_services[@]}"; do current_set["$svc"]=1; done
 # Present service selection
 default_indices=()
 echo ""
-echo "Select services (comma-separated, or Enter for defaults):"
+echo "Select services (comma-separated, 0 for none, or Enter for defaults):"
+echo "  0) none"
 for i in "${!available_services[@]}"; do
     svc="${available_services[$i]}"
     marker=""
@@ -79,14 +80,17 @@ read -rp "Choice [$default_choice]: " service_choice
 service_choice="${service_choice:-$default_choice}"
 
 # Parse selection and write .sail-services
+# Selecting 0 leaves the file empty, meaning no additional services (sail only)
 : > "$site_directory/.sail-services"
-IFS=',' read -ra selected_indices <<< "$service_choice"
-for idx in "${selected_indices[@]}"; do
-    idx="${idx// /}"
-    if [[ "$idx" =~ ^[0-9]+$ ]] && [ "$idx" -ge 1 ] && [ "$idx" -le "${#available_services[@]}" ]; then
-        echo "${available_services[$((idx - 1))]}" >> "$site_directory/.sail-services"
-    fi
-done
+if [ "$service_choice" != "0" ]; then
+    IFS=',' read -ra selected_indices <<< "$service_choice"
+    for idx in "${selected_indices[@]}"; do
+        idx="${idx// /}"
+        if [[ "$idx" =~ ^[0-9]+$ ]] && [ "$idx" -ge 1 ] && [ "$idx" -le "${#available_services[@]}" ]; then
+            echo "${available_services[$((idx - 1))]}" >> "$site_directory/.sail-services"
+        fi
+    done
+fi
 
 echo ""
 echo "Created ${site_directory#"$LARAVEL_RUNTIME_DIRECTORY"/}/"

@@ -6,7 +6,7 @@
 # e.g. for /home/app/my/sub/project, checks:
 #   sites/project -> sites/sub/project -> sites/my/sub/project
 
-search_path="${1:-$(pwd)}"
+search_path="$PROJECT_PATH"
 relative_path=""
 
 while [ "$search_path" != "/" ]; do
@@ -18,4 +18,7 @@ while [ "$search_path" != "/" ]; do
 
     search_path=$(dirname "$search_path")
 done
+
+echo "No site directory found for '$(basename "${1:-$(pwd)}")'." >&2
+echo "Run 'sail-setup' from your project directory first." >&2
 exit 1

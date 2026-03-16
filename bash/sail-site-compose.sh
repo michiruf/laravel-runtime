@@ -4,10 +4,7 @@
 # For sites with docker-compose.custom.yml: echoes that path (full replacement).
 # For merge-based sites: compiles all compose files into docker-compose.yml.
 
-site_directory=$(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/sail-site-directory.sh" "$(pwd)")
-if [ -z "$site_directory" ]; then
-    exit 1
-fi
+site_directory=$(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/sail-site-directory.sh") || exit 1
 
 # Full custom compose — symlink project .env and use as-is
 if [ -f "$site_directory/docker-compose.custom.yml" ]; then
@@ -25,12 +22,12 @@ if [ -f "$site_directory/docker-compose.override.yml" ]; then
 fi
 
 # Compile merged config into a single file
-config_file="$site_directory/docker-compose.yml"
 compose_cmd=(docker compose --project-directory "$site_directory" --env-file "$(pwd)/.env")
 IFS=':' read -ra files <<< "$compose_files"
 for f in "${files[@]}"; do
     compose_cmd+=(-f "$f")
 done
 
-"${compose_cmd[@]}" config > "$config_file"
-echo "$config_file"
+site_compose_file="$site_directory/docker-compose.yml"
+"${compose_cmd[@]}" config > "$site_compose_file"
+echo "$site_compose_file"

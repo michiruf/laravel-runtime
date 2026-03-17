@@ -60,7 +60,8 @@ if [ -f "$site_directory/docker-compose.override.yml" ]; then
 fi
 
 # Compile merged config into a single file
-compose_cmd=(docker compose --project-directory "$site_directory" --env-file "$(pwd)/.env")
+compose_cmd=(docker compose --project-directory "$site_directory")
+[ -f "$(pwd)/.env" ] && compose_cmd+=(--env-file "$(pwd)/.env")
 IFS=':' read -ra files <<< "$compose_files"
 for f in "${files[@]}"; do
     compose_cmd+=(-f "$f")

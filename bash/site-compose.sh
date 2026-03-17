@@ -27,6 +27,7 @@ resolve_compose_files() {
         local feature=$(basename "$(dirname "$feature_compose")")
         local dir_name=$(basename "$(dirname "$(dirname "$feature_compose")")")
         local env_var="$(echo "${dir_name}_${feature}" | tr '[:lower:]-' '[:upper:]_')"
+        [[ " sail ${services[*]} " != *" $dir_name "* ]] && continue
         [ "${!env_var}" = "true" ] && result="$result:$feature_compose"
     done
 

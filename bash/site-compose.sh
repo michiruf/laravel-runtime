@@ -68,5 +68,5 @@ for f in "${files[@]}"; do
 done
 
 site_compose_file="$site_directory/docker-compose.yml"
-"${compose_cmd[@]}" config > "$site_compose_file"
+"${compose_cmd[@]}" config > "$site_compose_file" || exit 1
 echo "$site_compose_file"

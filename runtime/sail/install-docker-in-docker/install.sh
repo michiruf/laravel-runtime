@@ -12,4 +12,4 @@ apt-get update \
 	&& apt-get install -y docker-ce-cli docker-compose-plugin
 
 # Allow sail user to access the docker socket
-groupadd -f docker && usermod -aG docker sail
+groupadd -f -g "$DOCKER_SOCKET_GID" docker && usermod -aG docker sail

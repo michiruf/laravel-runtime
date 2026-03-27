@@ -39,7 +39,7 @@ Located in `runtime/`, selectable per site via `sail-setup`:
 |---------------------------------|----------------------------------------|
 | `PHP_VERSION`                   | PHP version for the Sail container     |
 | `SAIL_INSTALL_CLAUDE_CODE`      | Install Claude CLI in container        |
-| `SAIL_INSTALL_DOCKER_IN_DOCKER` | Install Docker CLI and mount socket    |
+| `SAIL_INSTALL_DOCKER_IN_DOCKER` | Run Docker daemon inside the container |
 | `SAIL_INSTALL_GEMINI_CLI`       | Install Gemini CLI in container        |
 | `SAIL_INSTALL_PAPLAY`           | Install PulseAudio utilities           |
 | `SAIL_INSTALL_PDFTOTEXT`        | Install PDF text extraction tools      |

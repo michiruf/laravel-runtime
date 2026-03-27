@@ -3,6 +3,4 @@ services:
         build:
             args:
                 SAIL_INSTALL_DOCKER_IN_DOCKER: 'true'
-                DOCKER_SOCKET_GID: '${DOCKER_SOCKET_GID}'
-        volumes:
-            - '/var/run/docker.sock:/var/run/docker.sock'
+        privileged: true

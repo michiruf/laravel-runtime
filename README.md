@@ -75,6 +75,7 @@ Each feature directory can contain:
 | `install.sh` | Build-time install script (sail features) |
 
 To add a new feature: create `runtime/{service}/{feature}/` with a `docker-compose.yml` and add `{SERVICE}_{FEATURE}=true` to `.env`.
+Sail features with an `install.sh` also need a corresponding `ARG` in `runtime/sail/Dockerfile`.
 
 ### Site Configuration
 

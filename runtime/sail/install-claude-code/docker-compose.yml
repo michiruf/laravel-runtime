@@ -5,5 +5,4 @@ services:
                 SAIL_INSTALL_CLAUDE_CODE: 'true'
         volumes:
             - '~/.claude.json:/home/sail/.claude.json'
-            - '~/.claude.json.backup:/home/sail/.claude.json.backup'
             - '~/.claude:/home/sail/.claude/'

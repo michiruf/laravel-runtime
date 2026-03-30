@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 [ "$SAIL_INSTALL_GH_CLI" != "true" ] && exit 0
 
+# Pre-create .config owned by sail so Docker doesn't create it as root when mounting ~/.config/gh/
+install -d -o sail -g sail /home/sail/.config
+
 # https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian
 (type -p wget >/dev/null || (apt update && apt install wget -y)) \
 	&& mkdir -p -m 755 /etc/apt/keyrings \

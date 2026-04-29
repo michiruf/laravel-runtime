@@ -4,8 +4,8 @@ services:
             context: ${LARAVEL_RUNTIME_DIRECTORY}/runtime/sail
             dockerfile: Dockerfile
             args:
-                PHP_VERSION: '${PHP_VERSION:-8.4}'
-        image: php-runtime-${PHP_VERSION:-8.4}/app
+                PHP_VERSION: '${PHP_VERSION:-8.5}'
+        image: php-runtime-${PHP_VERSION:-8.5}/app
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         expose:

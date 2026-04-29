@@ -2,7 +2,7 @@
 
 # Pre-build base sail image when building
 if [[ "$1" == "build" || "$1" == "up" ]]; then
-    php_version="${PHP_VERSION:-8.4}"
+    php_version="${PHP_VERSION:-8.5}"
     sail_runtime="$LARAVEL_RUNTIME_DIRECTORY/vendor/laravel/sail/runtimes/$php_version"
 
     if [ ! -d "$sail_runtime" ]; then

@@ -1,0 +1,7 @@
+services:
+    laravel.test:
+        build:
+            args:
+                SAIL_INSTALL_PLAYWRIGHT: 'true'
+        volumes:
+            - '~/.cache/ms-playwright:/home/sail/.cache/ms-playwright'

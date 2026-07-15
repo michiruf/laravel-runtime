@@ -8,7 +8,7 @@ sudo apt remove composer
 # Install php
 sudo add-apt-repository ppa:ondrej/php # Press enter when prompted.
 sudo apt update
-sudo apt install php8.5 php8.5-cli php8.5-fpm php8.5-{bz2,curl,mbstring,intl,zip,dom,bcmath,redis,gd,imagick}
+sudo apt install php8.5 php8.5-cli php8.5-fpm php8.5-{bz2,curl,mbstring,intl,zip,dom,bcmath,redis,gd,imagick,sqlite3}
 
 # Install composer
 php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"

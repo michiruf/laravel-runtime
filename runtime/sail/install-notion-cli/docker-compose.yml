@@ -1,0 +1,14 @@
+services:
+    laravel.test:
+        build:
+            args:
+                SAIL_INSTALL_NOTION_CLI: 'true'
+        environment:
+            # The official Notion CLI stores credentials in the OS keychain, which
+            # cannot be bind-mounted into the container. Instead, authenticate once
+            # on the host (or create an integration token) and expose it here so the
+            # container never needs an interactive `ntn login`.
+            NOTION_API_TOKEN: '${NOTION_API_TOKEN}'
+            # Skip the OS keychain (unavailable in a headless container) and rely on
+            # the token above.
+            NOTION_KEYRING: '0'

@@ -35,15 +35,17 @@ Located in `runtime/`, selectable per site via `sail-setup`:
 
 ### Runtime `.env`
 
-| Variable                        | Description                            |
-|---------------------------------|----------------------------------------|
-| `PHP_VERSION`                   | PHP version for the Sail container     |
-| `SAIL_INSTALL_CLAUDE_CODE`      | Install Claude CLI in container        |
-| `SAIL_INSTALL_DOCKER_IN_DOCKER` | Run Docker daemon inside the container |
-| `SAIL_INSTALL_GEMINI_CLI`       | Install Gemini CLI in container        |
-| `SAIL_INSTALL_PAPLAY`           | Install PulseAudio utilities           |
-| `SAIL_INSTALL_PDFTOTEXT`        | Install PDF text extraction tools      |
-| `MYSQL_CREATE_TEST_DATABASE`    | Auto-create a test database on startup |
+| Variable                        | Description                                                           |
+|---------------------------------|-----------------------------------------------------------------------|
+| `PHP_VERSION`                   | PHP version for the Sail container                                    |
+| `SAIL_INSTALL_CLAUDE_CODE`      | Install Claude CLI in container                                       |
+| `SAIL_INSTALL_DOCKER_IN_DOCKER` | Run Docker daemon inside the container                                |
+| `SAIL_INSTALL_GEMINI_CLI`       | Install Gemini CLI in container                                       |
+| `SAIL_INSTALL_NOTION_CLI`       | Install Notion CLI (`ntn`) in container                               |
+| `NOTION_API_TOKEN`              | Notion token passed to the container so `ntn` skips interactive login |
+| `SAIL_INSTALL_PAPLAY`           | Install PulseAudio utilities                                          |
+| `SAIL_INSTALL_PDFTOTEXT`        | Install PDF text extraction tools                                     |
+| `MYSQL_CREATE_TEST_DATABASE`    | Auto-create a test database on startup                                |
 
 Located in `services/`, toggled via `.env`:
 
@@ -65,6 +67,7 @@ The env var name is derived from the path: `{SERVICE}_{FEATURE}`, uppercased wit
 | `runtime/sail/install-claude-code/`      | `SAIL_INSTALL_CLAUDE_CODE`      |
 | `runtime/sail/install-docker-in-docker/` | `SAIL_INSTALL_DOCKER_IN_DOCKER` |
 | `runtime/sail/install-gemini-cli/`       | `SAIL_INSTALL_GEMINI_CLI`       |
+| `runtime/sail/install-notion-cli/`       | `SAIL_INSTALL_NOTION_CLI`       |
 | `runtime/sail/install-paplay/`           | `SAIL_INSTALL_PAPLAY`           |
 | `runtime/sail/install-pdftotext/`        | `SAIL_INSTALL_PDFTOTEXT`        |
 | `runtime/mysql/create-test-database/`    | `MYSQL_CREATE_TEST_DATABASE`    |

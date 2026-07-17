@@ -1,0 +1,9 @@
+services:
+    laravel.test:
+        build:
+            args:
+                SAIL_INSTALL_FLARE_CLI: 'true'
+        volumes:
+            # `flare login` stores its API token in ~/.flare/config.json; mount the
+            # host directory so authentication survives container rebuilds.
+            - '~/.flare:/home/sail/.flare'

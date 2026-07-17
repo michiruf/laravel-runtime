@@ -40,6 +40,7 @@ Located in `runtime/`, selectable per site via `sail-setup`:
 | `PHP_VERSION`                   | PHP version for the Sail container                                    |
 | `SAIL_INSTALL_CLAUDE_CODE`      | Install Claude CLI in container                                       |
 | `SAIL_INSTALL_DOCKER_IN_DOCKER` | Run Docker daemon inside the container                                |
+| `SAIL_INSTALL_FLARE_CLI`        | Install Flare CLI (`flare`) in container                              |
 | `SAIL_INSTALL_GEMINI_CLI`       | Install Gemini CLI in container                                       |
 | `SAIL_INSTALL_NOTION_CLI`       | Install Notion CLI (`ntn`) in container                               |
 | `NOTION_API_TOKEN`              | Notion token passed to the container so `ntn` skips interactive login |
@@ -66,6 +67,7 @@ The env var name is derived from the path: `{SERVICE}_{FEATURE}`, uppercased wit
 |------------------------------------------|---------------------------------|
 | `runtime/sail/install-claude-code/`      | `SAIL_INSTALL_CLAUDE_CODE`      |
 | `runtime/sail/install-docker-in-docker/` | `SAIL_INSTALL_DOCKER_IN_DOCKER` |
+| `runtime/sail/install-flare-cli/`        | `SAIL_INSTALL_FLARE_CLI`        |
 | `runtime/sail/install-gemini-cli/`       | `SAIL_INSTALL_GEMINI_CLI`       |
 | `runtime/sail/install-notion-cli/`       | `SAIL_INSTALL_NOTION_CLI`       |
 | `runtime/sail/install-paplay/`           | `SAIL_INSTALL_PAPLAY`           |

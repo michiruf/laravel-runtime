@@ -1,0 +1,36 @@
+services:
+    laravel.test:
+        depends_on:
+            - mariadb
+    mariadb:
+        image: 'mariadb:12.3'
+        expose:
+            - '3306'
+        environment:
+            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ROOT_HOST: '%'
+            MYSQL_DATABASE: '${DB_DATABASE}'
+            MYSQL_USER: '${DB_USERNAME}'
+            MYSQL_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ALLOW_EMPTY_PASSWORD: 1
+        volumes:
+            - 'sail-mariadb:/var/lib/mysql'
+        networks:
+            - sail
+        healthcheck:
+            test: [ "CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -u root -p$DB_PASSWORD" ]
+            interval: 10s
+            timeout: 10s
+            retries: 20
+        restart: unless-stopped
+
+networks:
+    sail:
+        driver: bridge
+
+volumes:
+    sail-mariadb:
+        driver: local
+        driver_opts:
+            type: tmpfs
+            device: tmpfs

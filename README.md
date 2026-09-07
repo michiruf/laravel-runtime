@@ -89,11 +89,12 @@ Sail features with an `install.sh` also need a corresponding `ARG` in `runtime/s
 
 Each site directory under `sites/` can contain:
 
-| File                          | Purpose                                     |
-|-------------------------------|---------------------------------------------|
-| `.sail-services`              | Selected services (one per line)            |
-| `docker-compose.override.yml` | Overrides merged with runtime service files |
-| `docker-compose.custom.yml`   | Full custom compose (replaces all merging)  |
+| File                          | Purpose                                                   |
+|-------------------------------|------------------------------------------------------------|
+| `.sail-services`              | Selected services (one per line)                          |
+| `.php-version`                | Overrides the runtime's `PHP_VERSION` for this site only  |
+| `docker-compose.override.yml` | Overrides merged with runtime service files               |
+| `docker-compose.custom.yml`   | Full custom compose (replaces all merging)                |
 
 ## PHPStorm Integration
 

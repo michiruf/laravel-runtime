@@ -42,6 +42,21 @@ fi
 
 mkdir -p "$site_directory"
 
+# PHP version selection
+runtime_default_php_version=$(grep -E '^PHP_VERSION=' "$LARAVEL_RUNTIME_DIRECTORY/.env" 2>/dev/null | tail -1 | cut -d= -f2-)
+current_php_version="${PHP_VERSION:-$runtime_default_php_version}"
+
+echo ""
+echo "Select PHP version for this site (runtime default: $runtime_default_php_version):"
+read -rp "Choice [$current_php_version]: " php_version_choice
+php_version_choice="${php_version_choice:-$current_php_version}"
+
+if [ "$php_version_choice" = "$runtime_default_php_version" ]; then
+    rm -f "$site_directory/.php-version"
+else
+    echo "$php_version_choice" > "$site_directory/.php-version"
+fi
+
 # Discover available services
 available_services=()
 while IFS= read -r svc; do available_services+=("$svc"); done < <(bash "$LARAVEL_RUNTIME_DIRECTORY/bash/runtime-discovery.sh")
@@ -95,4 +110,5 @@ fi
 
 echo ""
 echo "Created ${site_directory#"$LARAVEL_RUNTIME_DIRECTORY"/}/"
+echo "PHP version: $([ -s "$site_directory/.php-version" ] && cat "$site_directory/.php-version" || echo "$runtime_default_php_version (default)")"
 echo "Services: $(tr '\n' ' ' < "$site_directory/.sail-services")"

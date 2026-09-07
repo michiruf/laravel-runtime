@@ -1,0 +1,31 @@
+services:
+  laravel.test:
+    depends_on:
+      - elasticsearch
+  elasticsearch:
+    image: 'docker.elastic.co/elasticsearch/elasticsearch:8.11.0'
+    expose:
+      - '9200'
+      - '9300'
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - http.port=9200
+      - transport.port=9300
+    volumes:
+      - 'sail-elasticsearch:/usr/share/elasticsearch/data'
+    networks:
+      - sail
+    restart: unless-stopped
+
+networks:
+  sail:
+    driver: bridge
+
+volumes:
+  sail-elasticsearch:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
